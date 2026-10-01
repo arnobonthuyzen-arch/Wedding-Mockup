@@ -19,8 +19,14 @@ export default function Footer() {
         Share your photos with #KaylaAndWynand
       </div>
       <a
+        href="/competition"
+        className="mt-3 text-xs tracking-[0.18em] uppercase text-gold hover:text-ivory transition-colors font-sans"
+      >
+        ✦ Win a Bespoke Wedding Website by Creative Forge Digital
+      </a>
+      <a
         href="#top"
-        className="link-rule mt-7 text-[11px] tracking-[0.3em] uppercase text-gold-light opacity-70 transition-opacity hover:text-gold-light hover:opacity-100"
+        className="link-rule mt-5 text-[11px] tracking-[0.3em] uppercase text-gold-light opacity-70 transition-opacity hover:text-gold-light hover:opacity-100"
       >
         Back to top
       </a>

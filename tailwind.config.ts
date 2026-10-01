@@ -34,6 +34,7 @@ export default {
       fontFamily: {
         script: ["var(--font-great-vibes)"],
         serif: ["var(--font-cormorant)", "Georgia", "serif"],
+        sans: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
       },
       boxShadow: {
         soft: "0 18px 40px -26px rgba(59,47,38,0.30)",
