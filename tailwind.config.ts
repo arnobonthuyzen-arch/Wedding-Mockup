@@ -30,6 +30,16 @@ export default {
         border: "#dccbb5",
         "border-soft": "#e3d6c3",
         ivory: "#fbf6ee",
+        // Creative Forge Digital Brand Palette
+        "cfd-black": "#101010",
+        "cfd-dark": "#161616",
+        "cfd-card": "#1E1E1E",
+        "cfd-newsprint": "#FAF7F2",
+        "cfd-cream": "#F4EFE6",
+        "cfd-border": "#E5DFD5",
+        "cfd-border-dark": "#2A2A2A",
+        "cfd-muted": "#78736B",
+        "cfd-charcoal": "#1C1A17",
       },
       fontFamily: {
         script: ["var(--font-great-vibes)"],

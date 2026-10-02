@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useId } from "react";
+import { useState } from "react";
 import TermsModal from "./TermsModal";
-import { SprigDivider } from "../Flourish";
 
 type Relationship =
   | "Bride"
@@ -148,7 +147,7 @@ export default function CompetitionForm() {
     // 1. Check age gate
     if (form.residentAge18 !== "yes") {
       setSubmitError("You must be a South African resident aged 18 or older to enter.");
-      window.scrollTo({ top: 300, behavior: "smooth" });
+      window.scrollTo({ top: 400, behavior: "smooth" });
       return;
     }
 
@@ -262,7 +261,7 @@ export default function CompetitionForm() {
         entrantName: form.fullName,
       });
 
-      window.scrollTo({ top: 150, behavior: "smooth" });
+      window.scrollTo({ top: 200, behavior: "smooth" });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "An unexpected error occurred.";
       setSubmitError(message);
@@ -271,103 +270,94 @@ export default function CompetitionForm() {
     }
   };
 
-  // RENDER: SUCCESS SCREEN
+  // =========================================================================
+  // SUCCESS SCREEN (CFD Editorial Celebration)
+  // =========================================================================
   if (submittedData) {
     return (
-      <section className="relative mx-auto my-8 max-w-2xl border border-gold bg-cream-soft px-6 py-12 sm:px-12 sm:py-16 text-center shadow-lift">
-        <span className="pointer-events-none absolute inset-2.5 border border-gold-light/35" />
-
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gold/15 text-gold border border-gold/30">
-          <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
+      <section className="relative mx-auto my-12 max-w-3xl border border-cfd-border bg-white p-8 sm:p-14 text-center shadow-lift text-cfd-charcoal font-sans">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-cfd-black bg-cfd-black text-white font-serif italic text-xl">
+          CF
         </div>
 
-        <span className="mt-5 block text-xs uppercase tracking-[0.35em] text-gold font-sans font-semibold">
-          Entry Confirmed
+        <span className="mt-6 block text-[11px] uppercase tracking-[0.3em] text-cfd-muted font-medium">
+          Official Entry Verified &amp; Recorded
         </span>
 
-        <h2 className="mt-2 font-serif text-3xl sm:text-5xl font-normal text-espresso">
-          You&apos;re in the Draw!
+        <h2 className="mt-2 font-serif text-3xl sm:text-5xl font-normal text-cfd-black">
+          You are in the draw. <br />
+          <span className="italic font-light text-cfd-charcoal">
+            {submittedData.coupleNames}
+          </span>
         </h2>
 
-        <SprigDivider className="my-4" lineClassName="bg-gold/40" />
-
-        <p className="mx-auto max-w-lg font-serif text-lg leading-relaxed text-espresso-soft">
-          Thank you, <strong>{submittedData.entrantName}</strong>. Your entry to win a bespoke wedding website for <strong>{submittedData.coupleNames}</strong> has been officially recorded.
+        <p className="mx-auto mt-4 max-w-lg text-sm sm:text-base leading-relaxed text-cfd-muted font-serif">
+          Thank you, <strong>{submittedData.entrantName}</strong>. Your entry has been recorded in our official database. The audited random draw takes place on <strong>23 October 2026</strong>.
         </p>
 
         {/* Tally Card */}
-        <div className="mx-auto my-6 flex max-w-md items-center justify-between rounded-lg border border-border bg-cream p-4 text-left shadow-xs">
+        <div className="mx-auto my-8 grid max-w-md grid-cols-2 gap-4 border border-cfd-border bg-cfd-newsprint p-5 text-left">
           <div>
-            <div className="text-[11px] uppercase tracking-wider text-muted font-sans">
-              Entry Reference
+            <div className="text-[10px] uppercase tracking-[0.2em] text-cfd-muted">
+              Reference Code
             </div>
-            <div className="font-mono text-base font-bold text-espresso">
+            <div className="font-mono text-base font-bold text-cfd-black mt-0.5">
               {submittedData.entryId}
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-[11px] uppercase tracking-wider text-muted font-sans">
-              Entries Earned
+          <div className="border-l border-cfd-border pl-4">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-cfd-muted">
+              Official Tally
             </div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-gold/20 px-3 py-1 font-sans text-xs font-semibold text-espresso">
-              <span className="h-2 w-2 rounded-full bg-gold animate-pulse" />
-              {submittedData.entriesCount} {submittedData.entriesCount === 2 ? "Entries (Bonus included!)" : "Entry"}
+            <div className="text-sm font-semibold text-cfd-black mt-0.5">
+              {submittedData.entriesCount} {submittedData.entriesCount === 2 ? "Entries (Bonus Included)" : "Entry"}
             </div>
           </div>
         </div>
 
-        {/* Social Reminder Card */}
-        <div className="mx-auto max-w-lg rounded-lg border border-gold-light/40 bg-gold/5 p-5 text-left font-sans">
-          <div className="flex items-start gap-3">
-            <svg className="h-5 w-5 text-gold flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <div className="text-xs leading-relaxed text-espresso-soft">
-              <strong className="text-espresso block font-medium mb-1">Make sure your entry stays valid:</strong>
-              Keep following Creative Forge Digital on your 2 platforms and keep your tagged comment active until the draw date. Winners will be contacted via email and phone.
-            </div>
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-2 justify-center">
+        {/* Action Callout */}
+        <div className="mx-auto max-w-lg border border-cfd-border bg-cfd-newsprint p-5 text-left text-xs leading-relaxed text-cfd-charcoal">
+          <strong className="block font-semibold uppercase tracking-wider text-[11px] text-cfd-black mb-1">
+            Ensure your entry remains valid:
+          </strong>
+          <p className="m-0 text-cfd-muted">
+            Keep following Creative Forge Digital and ensure your tagged comment remains active. Winners will be announced by 26 October 2026.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
             <a
               href="https://instagram.com/creativeforgedigital"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 rounded border border-border bg-cream px-3 py-1.5 text-xs font-medium text-espresso hover:border-gold hover:text-gold transition-colors"
+              className="inline-flex items-center gap-1.5 border border-cfd-border bg-white px-3 py-1.5 text-[11px] uppercase tracking-wider text-cfd-black hover:border-black transition-colors"
             >
-              <span>Instagram</span>
-              <span className="text-gold">@creativeforgedigital</span>
+              Instagram @creativeforgedigital ↗
             </a>
             <a
               href="https://facebook.com/creativeforgedigital"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 rounded border border-border bg-cream px-3 py-1.5 text-xs font-medium text-espresso hover:border-gold hover:text-gold transition-colors"
+              className="inline-flex items-center gap-1.5 border border-cfd-border bg-white px-3 py-1.5 text-[11px] uppercase tracking-wider text-cfd-black hover:border-black transition-colors"
             >
-              <span>Facebook</span>
-              <span className="text-gold">Creative Forge Digital</span>
+              Facebook ↗
             </a>
             <a
               href="https://tiktok.com/@creativeforgedigital"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 rounded border border-border bg-cream px-3 py-1.5 text-xs font-medium text-espresso hover:border-gold hover:text-gold transition-colors"
+              className="inline-flex items-center gap-1.5 border border-cfd-border bg-white px-3 py-1.5 text-[11px] uppercase tracking-wider text-cfd-black hover:border-black transition-colors"
             >
-              <span>TikTok</span>
-              <span className="text-gold">@creativeforgedigital</span>
+              TikTok @creativeforgedigital ↗
             </a>
           </div>
         </div>
 
-        <div className="mt-8 flex justify-center">
+        <div className="mt-8">
           <button
             onClick={() => {
               setSubmittedData(null);
               setForm(INITIAL_FORM);
             }}
-            className="border-0 bg-transparent text-xs uppercase tracking-[0.25em] text-muted hover:text-espresso font-sans transition-colors cursor-pointer underline underline-offset-4"
+            className="border-0 bg-transparent text-[11px] uppercase tracking-[0.25em] text-cfd-muted hover:text-cfd-black transition-colors cursor-pointer underline underline-offset-4"
           >
             Submit Another Entry
           </button>
@@ -376,49 +366,51 @@ export default function CompetitionForm() {
     );
   }
 
-  // RENDER: MAIN FORM
+  // =========================================================================
+  // MAIN EDITORIAL FORM (CFD Style)
+  // =========================================================================
   return (
     <>
-      <section className="relative mx-auto my-6 max-w-3xl border border-border bg-cream-soft p-6 sm:p-12 shadow-soft font-sans text-espresso">
-        <span className="pointer-events-none absolute inset-2.5 border border-gold-light/25" />
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-12">
-          {/* Global Submit Error Message */}
+      <section
+        id="entry-form"
+        className="relative mx-auto my-8 max-w-4xl border border-cfd-border/90 bg-white p-6 sm:p-14 shadow-lift font-sans text-cfd-charcoal"
+      >
+        <form onSubmit={handleSubmit} className="flex flex-col gap-12 sm:gap-14">
+          {/* Error Banner */}
           {submitError && (
-            <div className="rounded-md border border-red-300 bg-red-50/90 p-4 text-sm text-red-800 shadow-xs flex items-start gap-3">
-              <svg className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
+            <div className="border border-red-300 bg-red-50/90 p-4 text-xs text-red-800 flex items-start gap-3">
+              <span className="font-mono text-sm font-bold text-red-600">!</span>
               <div>
-                <strong className="font-semibold block">Please fix the following:</strong>
-                <p className="mt-0.5">{submitError}</p>
+                <strong className="block font-semibold uppercase tracking-wider text-[11px]">
+                  Please review and resolve:
+                </strong>
+                <p className="mt-0.5 m-0">{submitError}</p>
               </div>
             </div>
           )}
 
           {/* ========================================================================= */}
-          {/* SECTION 1: ENTRANT DETAILS */}
+          {/* 01. ENTRANT DETAILS */}
           {/* ========================================================================= */}
-          <div className="flex flex-col gap-6 border-b border-border/80 pb-10">
+          <div className="flex flex-col gap-7 border-b border-cfd-border/80 pb-12">
             <div>
-              <div className="flex items-center gap-3">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gold text-cream text-xs font-semibold">
-                  1
-                </span>
-                <h3 className="font-serif text-2xl sm:text-3xl font-medium text-espresso">
-                  Entrant Details
-                </h3>
+              <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.22em] text-cfd-muted font-medium mb-1.5">
+                <span>Section 01</span>
+                <span>Entrant Specification</span>
               </div>
-              <p className="mt-2 text-xs italic text-muted font-serif">
+              <h2 className="font-serif text-2xl sm:text-4xl font-normal text-cfd-black">
+                Entrant details. <span className="italic font-light">Who is entering.</span>
+              </h2>
+              <p className="mt-2 text-xs text-cfd-muted leading-relaxed font-serif italic max-w-2xl">
                 The entrant is always the person physically completing the form and social actions — even when entering on behalf of a friend&apos;s or family member&apos;s wedding.
               </p>
             </div>
 
             {/* Full Name & Relationship */}
             <div className="grid gap-6 sm:grid-cols-2">
-              <label className="flex flex-col gap-1.5">
-                <span className="text-xs uppercase tracking-wider text-muted font-medium">
-                  Full Name <span className="text-gold">*</span>
+              <label className="flex flex-col gap-2">
+                <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black">
+                  Full Name <span className="text-neutral-400">*</span>
                 </span>
                 <input
                   type="text"
@@ -426,41 +418,41 @@ export default function CompetitionForm() {
                   placeholder="e.g. Kayla Marais"
                   value={form.fullName}
                   onChange={(e) => update("fullName", e.target.value)}
-                  className="rounded border border-border bg-cream px-3.5 py-2.5 text-sm text-espresso placeholder:text-[#a6927b] focus:border-gold focus:outline-none transition-colors"
+                  className="rounded-xs border border-cfd-border bg-white px-4 py-3 text-sm text-cfd-black placeholder:text-cfd-muted/60 focus:border-cfd-black focus:outline-none transition-colors"
                 />
-                <span className="text-[11px] text-muted">
+                <span className="text-[11px] text-cfd-muted">
                   Must match the name on your social media account(s)
                 </span>
               </label>
 
-              <label className="flex flex-col gap-1.5">
-                <span className="text-xs uppercase tracking-wider text-muted font-medium">
-                  Relationship to the Wedding <span className="text-gold">*</span>
+              <label className="flex flex-col gap-2">
+                <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black">
+                  Relationship to the Wedding <span className="text-neutral-400">*</span>
                 </span>
                 <select
                   required
                   value={form.relationship}
                   onChange={(e) => update("relationship", e.target.value as Relationship)}
-                  className="rounded border border-border bg-cream px-3.5 py-2.5 text-sm text-espresso focus:border-gold focus:outline-none transition-colors"
+                  className="rounded-xs border border-cfd-border bg-white px-4 py-3 text-sm text-cfd-black focus:border-cfd-black focus:outline-none transition-colors"
                 >
-                  <option value="" disabled>Select your relationship...</option>
+                  <option value="" disabled>Select relationship...</option>
                   <option value="Bride">Bride</option>
                   <option value="Groom">Groom</option>
                   <option value="Part of the Bridal Party">Part of the Bridal Party</option>
                   <option value="Friend">Friend</option>
                   <option value="Family Member">Family Member</option>
                 </select>
-                <span className="text-[11px] text-muted">
-                  Determines couple details needed in Section 2
+                <span className="text-[11px] text-cfd-muted">
+                  Determines whether Section 2 couple details are shown
                 </span>
               </label>
             </div>
 
             {/* Email & Phone */}
             <div className="grid gap-6 sm:grid-cols-2">
-              <label className="flex flex-col gap-1.5">
-                <span className="text-xs uppercase tracking-wider text-muted font-medium">
-                  Email Address <span className="text-gold">*</span>
+              <label className="flex flex-col gap-2">
+                <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black">
+                  Email Address <span className="text-neutral-400">*</span>
                 </span>
                 <input
                   type="email"
@@ -468,16 +460,16 @@ export default function CompetitionForm() {
                   placeholder="name@example.co.za"
                   value={form.email}
                   onChange={(e) => update("email", e.target.value)}
-                  className="rounded border border-border bg-cream px-3.5 py-2.5 text-sm text-espresso placeholder:text-[#a6927b] focus:border-gold focus:outline-none transition-colors"
+                  className="rounded-xs border border-cfd-border bg-white px-4 py-3 text-sm text-cfd-black placeholder:text-cfd-muted/60 focus:border-cfd-black focus:outline-none transition-colors"
                 />
-                <span className="text-[11px] text-muted">
+                <span className="text-[11px] text-cfd-muted">
                   Used to contact you immediately if drawn as winner
                 </span>
               </label>
 
-              <label className="flex flex-col gap-1.5">
-                <span className="text-xs uppercase tracking-wider text-muted font-medium">
-                  Phone Number (SA Format) <span className="text-gold">*</span>
+              <label className="flex flex-col gap-2">
+                <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black">
+                  Phone Number (SA Format) <span className="text-neutral-400">*</span>
                 </span>
                 <input
                   type="tel"
@@ -485,116 +477,116 @@ export default function CompetitionForm() {
                   placeholder="082 123 4567 or +27 82 123 4567"
                   value={form.phone}
                   onChange={(e) => update("phone", e.target.value)}
-                  className={`rounded border bg-cream px-3.5 py-2.5 text-sm text-espresso placeholder:text-[#a6927b] focus:outline-none transition-colors ${
+                  className={`rounded-xs border bg-white px-4 py-3 text-sm text-cfd-black placeholder:text-cfd-muted/60 focus:outline-none transition-colors ${
                     form.phone && !validateSAPhone(form.phone)
-                      ? "border-red-400 focus:border-red-500"
-                      : "border-border focus:border-gold"
+                      ? "border-red-400 focus:border-red-600"
+                      : "border-cfd-border focus:border-cfd-black"
                   }`}
                 />
-                <span className="text-[11px] text-muted">
-                  South African mobile format (e.g. 082 123 4567)
+                <span className="text-[11px] text-cfd-muted">
+                  South African mobile number format
                 </span>
               </label>
             </div>
 
-            {/* Eligibility: SA Resident 18+ */}
-            <div className="rounded-lg border border-gold-light/40 bg-gold/5 p-4">
-              <label className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer">
+            {/* Eligibility: SA Resident 18+ Gate */}
+            <div className="border border-cfd-border bg-cfd-newsprint p-4 sm:p-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <span className="text-xs uppercase tracking-wider font-semibold text-espresso block">
-                    Are you a South African resident aged 18 or older? <span className="text-gold">*</span>
+                  <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black block">
+                    Are you a South African resident aged 18 or older? <span className="text-neutral-400">*</span>
                   </span>
-                  <span className="text-[11px] text-espresso-soft">
-                    Hard eligibility requirement per competition rules.
+                  <span className="text-xs text-cfd-muted">
+                    Hard eligibility gate per Clause 5.1 of Terms &amp; Conditions.
                   </span>
                 </div>
-                <div className="flex items-center gap-4">
-                  <label className="inline-flex items-center gap-1.5 text-sm cursor-pointer">
+                <div className="flex items-center gap-6">
+                  <label className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-cfd-black cursor-pointer">
                     <input
                       type="radio"
                       name="residentAge18"
                       value="yes"
                       checked={form.residentAge18 === "yes"}
                       onChange={() => update("residentAge18", "yes")}
-                      className="accent-[#b8956e] h-4 w-4"
+                      className="accent-black h-4 w-4"
                     />
                     <span>Yes</span>
                   </label>
-                  <label className="inline-flex items-center gap-1.5 text-sm cursor-pointer">
+                  <label className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-cfd-black cursor-pointer">
                     <input
                       type="radio"
                       name="residentAge18"
                       value="no"
                       checked={form.residentAge18 === "no"}
                       onChange={() => update("residentAge18", "no")}
-                      className="accent-[#b8956e] h-4 w-4"
+                      className="accent-black h-4 w-4"
                     />
                     <span>No</span>
                   </label>
                 </div>
-              </label>
+              </div>
 
               {form.residentAge18 === "no" && (
-                <div className="mt-3 rounded border border-red-300 bg-red-50 p-2.5 text-xs text-red-700">
-                  ⚠️ This competition is only open to South African residents aged 18 and older. Submissions from ineligible entrants cannot be accepted.
+                <div className="mt-3 border border-red-300 bg-red-50 p-3 text-xs text-red-700">
+                  ⚠️ This competition is open only to South African residents aged 18 or older. Submissions from ineligible entrants cannot be processed.
                 </div>
               )}
             </div>
 
-            {/* Social Platform 2-of-3 Rule Callout */}
-            <div className="rounded-lg border border-border bg-cream p-4.5 shadow-xs">
-              <div className="flex items-start gap-2.5">
-                <svg className="h-5 w-5 text-gold flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div className="text-xs leading-relaxed text-espresso-soft">
-                  <strong className="text-espresso font-semibold">Social Platform Rule (2 of 3 Required):</strong>
-                  <p className="mt-1">
-                    You must follow <strong>Creative Forge Digital</strong> on at least <strong>2 of the 3 platforms</strong> below (Instagram, Facebook, TikTok) for your entry to be valid. If you don&apos;t have an account on one platform, tick the box next to it and make sure you&apos;re following us on the other two.
-                  </p>
+            {/* Platform Rule Callout Banner (CFD Signature Editorial) */}
+            <div className="border border-cfd-border bg-cfd-newsprint p-5 sm:p-6">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black">
+                    Platform Rule • 2 of 3 Platforms Required
+                  </span>
+                  <span
+                    className={`inline-block px-2.5 py-0.5 text-[10px] uppercase tracking-wider font-semibold ${
+                      validPlatformsCount >= 2
+                        ? "bg-black text-white"
+                        : "bg-cfd-border text-cfd-black"
+                    }`}
+                  >
+                    {validPlatformsCount} of 2 Confirmed
+                  </span>
                 </div>
-              </div>
-
-              {/* Live Status Counter */}
-              <div className="mt-3.5 flex items-center justify-between border-t border-border pt-3 text-xs">
-                <span className="text-muted">Platform verification status:</span>
-                <span
-                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-semibold text-[11px] ${
-                    validPlatformsCount >= 2
-                      ? "bg-green-100 text-green-800 border border-green-200"
-                      : "bg-amber-100 text-amber-800 border border-amber-200"
-                  }`}
-                >
-                  {validPlatformsCount >= 2 ? "✓ " : "• "}
-                  {validPlatformsCount} of 2 required platforms provided
-                </span>
+                <p className="text-xs leading-relaxed text-cfd-charcoal font-serif">
+                  &ldquo;You must follow Creative Forge Digital on at least <strong>2 of the 3 platforms</strong> below (Instagram, Facebook, TikTok) for your entry to be valid. If you don&apos;t have an account on one platform, tick the box next to it and make sure you&apos;re following us on the other two.&rdquo;
+                </p>
               </div>
             </div>
 
             {/* Platform 1: Instagram */}
-            <div className="rounded border border-border bg-cream/70 p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <label className="flex-1 flex flex-col gap-1">
+            <div className="border border-cfd-border bg-white p-4 sm:p-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <label className="flex-1 flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs uppercase tracking-wider font-medium text-espresso flex items-center gap-1.5">
-                      <span className="font-semibold">Instagram Handle</span>
-                      <span className="text-[10px] text-muted lowercase">(follow @creativeforgedigital)</span>
+                    <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black">
+                      Instagram Handle
                     </span>
+                    <a
+                      href="https://instagram.com/creativeforgedigital"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[11px] text-cfd-muted hover:text-black transition-colors"
+                    >
+                      Follow @creativeforgedigital ↗
+                    </a>
                   </div>
-                  <div className="relative mt-1">
-                    <span className="absolute left-3 top-2.5 text-xs text-muted">@</span>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-3 text-xs text-cfd-muted">@</span>
                     <input
                       type="text"
                       disabled={form.noInstagram}
-                      placeholder={form.noInstagram ? "No Instagram account" : "your_instagram_handle"}
+                      placeholder={form.noInstagram ? "No Instagram account" : "your_handle"}
                       value={form.instagramHandle}
                       onChange={(e) => update("instagramHandle", e.target.value.replace(/^@/, ""))}
-                      className="w-full rounded border border-border bg-cream py-2 pl-7 pr-3 text-sm text-espresso placeholder:text-[#a6927b] disabled:opacity-50 disabled:bg-cream-soft focus:border-gold focus:outline-none transition-colors"
+                      className="w-full rounded-xs border border-cfd-border bg-white py-2.5 pl-8 pr-3 text-sm text-cfd-black placeholder:text-cfd-muted/50 disabled:opacity-40 disabled:bg-cfd-newsprint focus:border-cfd-black focus:outline-none transition-colors"
                     />
                   </div>
                 </label>
 
-                <label className="flex items-center gap-2 self-start sm:self-center sm:pt-4 cursor-pointer text-xs text-muted hover:text-espresso">
+                <label className="flex items-center gap-2 self-start sm:self-center sm:pt-4 cursor-pointer text-xs text-cfd-muted hover:text-cfd-black">
                   <input
                     type="checkbox"
                     checked={form.noInstagram}
@@ -602,7 +594,7 @@ export default function CompetitionForm() {
                       update("noInstagram", e.target.checked);
                       if (e.target.checked) update("instagramHandle", "");
                     }}
-                    className="accent-[#b8956e] h-4 w-4"
+                    className="accent-black h-4 w-4"
                   />
                   <span>I don&apos;t have an Instagram account</span>
                 </label>
@@ -610,23 +602,33 @@ export default function CompetitionForm() {
             </div>
 
             {/* Platform 2: Facebook */}
-            <div className="rounded border border-border bg-cream/70 p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <label className="flex-1 flex flex-col gap-1">
-                  <span className="text-xs uppercase tracking-wider font-medium text-espresso">
-                    Facebook Name / Profile Handle
-                  </span>
+            <div className="border border-cfd-border bg-white p-4 sm:p-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <label className="flex-1 flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black">
+                      Facebook Name / Profile Handle
+                    </span>
+                    <a
+                      href="https://facebook.com/creativeforgedigital"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[11px] text-cfd-muted hover:text-black transition-colors"
+                    >
+                      Follow Creative Forge Digital ↗
+                    </a>
+                  </div>
                   <input
                     type="text"
                     disabled={form.noFacebook}
                     placeholder={form.noFacebook ? "No Facebook account" : "Your Facebook Name or profile link"}
                     value={form.facebookHandle}
                     onChange={(e) => update("facebookHandle", e.target.value)}
-                    className="mt-1 w-full rounded border border-border bg-cream px-3 py-2 text-sm text-espresso placeholder:text-[#a6927b] disabled:opacity-50 disabled:bg-cream-soft focus:border-gold focus:outline-none transition-colors"
+                    className="w-full rounded-xs border border-cfd-border bg-white py-2.5 px-3.5 text-sm text-cfd-black placeholder:text-cfd-muted/50 disabled:opacity-40 disabled:bg-cfd-newsprint focus:border-cfd-black focus:outline-none transition-colors"
                   />
                 </label>
 
-                <label className="flex items-center gap-2 self-start sm:self-center sm:pt-4 cursor-pointer text-xs text-muted hover:text-espresso">
+                <label className="flex items-center gap-2 self-start sm:self-center sm:pt-4 cursor-pointer text-xs text-cfd-muted hover:text-cfd-black">
                   <input
                     type="checkbox"
                     checked={form.noFacebook}
@@ -634,7 +636,7 @@ export default function CompetitionForm() {
                       update("noFacebook", e.target.checked);
                       if (e.target.checked) update("facebookHandle", "");
                     }}
-                    className="accent-[#b8956e] h-4 w-4"
+                    className="accent-black h-4 w-4"
                   />
                   <span>I don&apos;t have a Facebook account</span>
                 </label>
@@ -642,27 +644,36 @@ export default function CompetitionForm() {
             </div>
 
             {/* Platform 3: TikTok */}
-            <div className="rounded border border-border bg-cream/70 p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <label className="flex-1 flex flex-col gap-1">
-                  <span className="text-xs uppercase tracking-wider font-medium text-espresso flex items-center gap-1.5">
-                    <span className="font-semibold">TikTok Handle</span>
-                    <span className="text-[10px] text-muted lowercase">(follow @creativeforgedigital)</span>
-                  </span>
-                  <div className="relative mt-1">
-                    <span className="absolute left-3 top-2.5 text-xs text-muted">@</span>
+            <div className="border border-cfd-border bg-white p-4 sm:p-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <label className="flex-1 flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black">
+                      TikTok Handle
+                    </span>
+                    <a
+                      href="https://tiktok.com/@creativeforgedigital"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[11px] text-cfd-muted hover:text-black transition-colors"
+                    >
+                      Follow @creativeforgedigital ↗
+                    </a>
+                  </div>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-3 text-xs text-cfd-muted">@</span>
                     <input
                       type="text"
                       disabled={form.noTikTok}
-                      placeholder={form.noTikTok ? "No TikTok account" : "your_tiktok_handle"}
+                      placeholder={form.noTikTok ? "No TikTok account" : "your_handle"}
                       value={form.tiktokHandle}
                       onChange={(e) => update("tiktokHandle", e.target.value.replace(/^@/, ""))}
-                      className="w-full rounded border border-border bg-cream py-2 pl-7 pr-3 text-sm text-espresso placeholder:text-[#a6927b] disabled:opacity-50 disabled:bg-cream-soft focus:border-gold focus:outline-none transition-colors"
+                      className="w-full rounded-xs border border-cfd-border bg-white py-2.5 pl-8 pr-3 text-sm text-cfd-black placeholder:text-cfd-muted/50 disabled:opacity-40 disabled:bg-cfd-newsprint focus:border-cfd-black focus:outline-none transition-colors"
                     />
                   </div>
                 </label>
 
-                <label className="flex items-center gap-2 self-start sm:self-center sm:pt-4 cursor-pointer text-xs text-muted hover:text-espresso">
+                <label className="flex items-center gap-2 self-start sm:self-center sm:pt-4 cursor-pointer text-xs text-cfd-muted hover:text-cfd-black">
                   <input
                     type="checkbox"
                     checked={form.noTikTok}
@@ -670,7 +681,7 @@ export default function CompetitionForm() {
                       update("noTikTok", e.target.checked);
                       if (e.target.checked) update("tiktokHandle", "");
                     }}
-                    className="accent-[#b8956e] h-4 w-4"
+                    className="accent-black h-4 w-4"
                   />
                   <span>I don&apos;t have a TikTok account</span>
                 </label>
@@ -678,55 +689,73 @@ export default function CompetitionForm() {
             </div>
 
             {noAccountCount >= 2 && (
-              <div className="rounded border border-amber-300 bg-amber-50 p-2.5 text-xs text-amber-800">
-                Notice: You have marked {noAccountCount} platforms as &quot;no account&quot;. You must have accounts and follow CFD on at least 2 platforms to be eligible.
+              <div className="border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
+                Notice: You have marked {noAccountCount} platforms as &quot;no account&quot;. You must follow CFD on at least 2 platforms for your entry to be valid.
               </div>
             )}
           </div>
 
           {/* ========================================================================= */}
-          {/* SECTION 2: THE WEDDING */}
+          {/* 02. THE WEDDING */}
           {/* ========================================================================= */}
-          <div className="flex flex-col gap-6 border-b border-border/80 pb-10">
+          <div className="flex flex-col gap-7 border-b border-cfd-border/80 pb-12">
             <div>
-              <div className="flex items-center gap-3">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gold text-cream text-xs font-semibold">
-                  2
-                </span>
-                <h3 className="font-serif text-2xl sm:text-3xl font-medium text-espresso">
-                  The Wedding
-                </h3>
+              <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.22em] text-cfd-muted font-medium mb-1.5">
+                <span>Section 02</span>
+                <span>The 2027 Wedding</span>
               </div>
-              <p className="mt-2 text-xs italic text-muted font-serif">
+              <h2 className="font-serif text-2xl sm:text-4xl font-normal text-cfd-black">
+                The wedding. <span className="italic font-light">The celebration.</span>
+              </h2>
+              <p className="mt-2 text-xs text-cfd-muted leading-relaxed font-serif italic max-w-2xl">
                 {isDirectCouple
-                  ? "Since you are entering your own wedding, specify your wedding date and unique wedding hashtag."
+                  ? "Since you are entering your own wedding, specify your confirmed 2027 wedding date and unique wedding hashtag."
                   : "Tell us about the lucky couple you are entering on behalf of."}
               </p>
             </div>
 
-            {/* Couple's Names: Always shown (or customized) */}
-            <label className="flex flex-col gap-1.5">
-              <span className="text-xs uppercase tracking-wider text-muted font-medium">
-                Couple&apos;s Names (as they&apos;d appear on the website) <span className="text-gold">*</span>
-              </span>
-              <input
-                type="text"
-                required
-                placeholder="e.g. Kayla Marais & Wynand Bonthuyzen"
-                value={form.coupleNames}
-                onChange={(e) => update("coupleNames", e.target.value)}
-                className="rounded border border-border bg-cream px-3.5 py-2.5 text-sm text-espresso placeholder:text-[#a6927b] focus:border-gold focus:outline-none transition-colors"
-              />
-              <span className="text-[11px] text-muted">
-                How the names should be presented across the site, navigation, and banners
-              </span>
-            </label>
+            {/* Couple's Names: Shown in full only if Bridal Party, Friend, or Family Member (per spec) */}
+            {isEnteringForCouple ? (
+              <label className="flex flex-col gap-2">
+                <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black">
+                  Couple&apos;s Names (as they&apos;d appear on the website) <span className="text-neutral-400">*</span>
+                </span>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Kayla & Wynand"
+                  value={form.coupleNames}
+                  onChange={(e) => update("coupleNames", e.target.value)}
+                  className="rounded-xs border border-cfd-border bg-white px-4 py-3 text-sm text-cfd-black placeholder:text-cfd-muted/60 focus:border-cfd-black focus:outline-none transition-colors"
+                />
+                <span className="text-[11px] text-cfd-muted">
+                  How the couple&apos;s names should be presented across website navigation and headlines
+                </span>
+              </label>
+            ) : (
+              <label className="flex flex-col gap-2">
+                <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black">
+                  Couple&apos;s Names (as they&apos;d appear on the website) <span className="text-neutral-400">*</span>
+                </span>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Kayla & Wynand"
+                  value={form.coupleNames || form.fullName}
+                  onChange={(e) => update("coupleNames", e.target.value)}
+                  className="rounded-xs border border-cfd-border bg-white px-4 py-3 text-sm text-cfd-black placeholder:text-cfd-muted/60 focus:border-cfd-black focus:outline-none transition-colors"
+                />
+                <span className="text-[11px] text-cfd-muted">
+                  Your and your partner&apos;s names for the website header
+                </span>
+              </label>
+            )}
 
             {/* Wedding Date & Hashtag */}
             <div className="grid gap-6 sm:grid-cols-2">
-              <label className="flex flex-col gap-1.5">
-                <span className="text-xs uppercase tracking-wider text-muted font-medium">
-                  Confirmed Wedding Date <span className="text-gold">*</span>
+              <label className="flex flex-col gap-2">
+                <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black">
+                  Confirmed Wedding Date <span className="text-neutral-400">*</span>
                 </span>
                 <input
                   type="date"
@@ -735,57 +764,56 @@ export default function CompetitionForm() {
                   max="2027-12-31"
                   value={form.weddingDate}
                   onChange={(e) => update("weddingDate", e.target.value)}
-                  className="rounded border border-border bg-cream px-3.5 py-2.5 text-sm text-espresso focus:border-gold focus:outline-none transition-colors"
+                  className="rounded-xs border border-cfd-border bg-white px-4 py-3 text-sm text-cfd-black focus:border-cfd-black focus:outline-none transition-colors"
                 />
-                <span className="text-[11px] text-muted">
+                <span className="text-[11px] text-cfd-muted">
                   Must be in 2027 (Clause 2.8: Only weddings in 2027 are eligible)
                 </span>
               </label>
 
-              <label className="flex flex-col gap-1.5">
-                <span className="text-xs uppercase tracking-wider text-muted font-medium">
-                  Couple&apos;s Unique Wedding Hashtag <span className="text-gold">*</span>
+              <label className="flex flex-col gap-2">
+                <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black">
+                  Couple&apos;s Unique Wedding Hashtag <span className="text-neutral-400">*</span>
                 </span>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-2.5 text-sm text-gold font-medium">#</span>
+                  <span className="absolute left-3.5 top-3 text-sm font-semibold text-cfd-muted">#</span>
                   <input
                     type="text"
                     required
                     placeholder="KaylaAndWynand2027"
                     value={form.weddingHashtag.replace(/^#/, "")}
                     onChange={(e) => update("weddingHashtag", `#${e.target.value.replace(/^#/, "")}`)}
-                    className="w-full rounded border border-border bg-cream py-2.5 pl-8 pr-3 text-sm text-espresso placeholder:text-[#a6927b] focus:border-gold focus:outline-none transition-colors"
+                    className="w-full rounded-xs border border-cfd-border bg-white py-3 pl-8 pr-3 text-sm text-cfd-black placeholder:text-cfd-muted/60 focus:border-cfd-black focus:outline-none transition-colors"
                   />
                 </div>
-                <span className="text-[11px] text-muted">
-                  Must be unique to the couple (checked against your Instagram Story post)
+                <span className="text-[11px] text-cfd-muted">
+                  Must be unique to the couple (checked against your Story post)
                 </span>
               </label>
             </div>
 
-            {/* Date Confirmation Checkbox */}
-            <label className="flex items-start gap-3 rounded-lg border border-border bg-cream p-4 cursor-pointer hover:border-gold-light transition-colors">
+            {/* Honesty Commitment Checkbox */}
+            <label className="flex items-start gap-3 border border-cfd-border bg-cfd-newsprint p-4 sm:p-5 cursor-pointer hover:border-black transition-colors">
               <input
                 type="checkbox"
                 required
                 checked={form.dateConfirmed}
                 onChange={(e) => update("dateConfirmed", e.target.checked)}
-                className="accent-[#b8956e] h-4 w-4 mt-0.5 flex-shrink-0"
+                className="accent-black h-4 w-4 mt-0.5 flex-shrink-0"
               />
-              <span className="text-xs leading-relaxed text-espresso-soft">
-                <strong className="text-espresso">Honesty Commitment: </strong>
-                I confirm this wedding date is accurate to the best of my knowledge, and understand proof (such as venue booking or invitations) may be requested if drawn as a winner. <span className="text-gold">*</span>
+              <span className="text-xs leading-relaxed text-cfd-charcoal font-serif">
+                I confirm this wedding date is accurate to the best of my knowledge, and understand proof may be requested if drawn as a winner. <span className="text-neutral-400 font-sans">*</span>
               </span>
             </label>
 
-            {/* If entering on behalf of someone else, show optional couple backup contact */}
+            {/* Couple Backup Contact (Shown if entering on behalf of couple) */}
             {isEnteringForCouple && (
-              <div className="rounded-lg border border-dashed border-border bg-cream/40 p-4">
-                <span className="text-xs uppercase tracking-wider font-semibold text-espresso block mb-1">
+              <div className="border border-dashed border-cfd-border bg-cfd-newsprint/60 p-5">
+                <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black block mb-1">
                   Couple&apos;s Direct Contact (Optional Backup)
                 </span>
-                <p className="text-[11px] text-muted mb-3">
-                  If you are entering on behalf of a friend or family member and cannot be reached within 5 business days of winning, providing their contact details ensures they don&apos;t miss out.
+                <p className="text-[11px] text-cfd-muted mb-4 font-serif">
+                  If the entrant drawn goes unresponsive within 7 days, providing the couple&apos;s details upfront ensures they do not forfeit the prize.
                 </p>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <input
@@ -793,14 +821,14 @@ export default function CompetitionForm() {
                     placeholder="Couple's Email (optional)"
                     value={form.coupleEmail}
                     onChange={(e) => update("coupleEmail", e.target.value)}
-                    className="rounded border border-border bg-cream px-3 py-2 text-xs text-espresso placeholder:text-[#a6927b] focus:border-gold focus:outline-none"
+                    className="rounded-xs border border-cfd-border bg-white px-3.5 py-2.5 text-xs text-cfd-black placeholder:text-cfd-muted/60 focus:border-cfd-black focus:outline-none"
                   />
                   <input
                     type="tel"
                     placeholder="Couple's Phone (optional)"
                     value={form.couplePhone}
                     onChange={(e) => update("couplePhone", e.target.value)}
-                    className="rounded border border-border bg-cream px-3 py-2 text-xs text-espresso placeholder:text-[#a6927b] focus:border-gold focus:outline-none"
+                    className="rounded-xs border border-cfd-border bg-white px-3.5 py-2.5 text-xs text-cfd-black placeholder:text-cfd-muted/60 focus:border-cfd-black focus:outline-none"
                   />
                 </div>
               </div>
@@ -808,106 +836,100 @@ export default function CompetitionForm() {
           </div>
 
           {/* ========================================================================= */}
-          {/* SECTION 3: ENTRY VERIFICATION */}
+          {/* 03. ENTRY VERIFICATION */}
           {/* ========================================================================= */}
-          <div className="flex flex-col gap-6 border-b border-border/80 pb-10">
+          <div className="flex flex-col gap-7 border-b border-cfd-border/80 pb-12">
             <div>
-              <div className="flex items-center gap-3">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gold text-cream text-xs font-semibold">
-                  3
-                </span>
-                <h3 className="font-serif text-2xl sm:text-3xl font-medium text-espresso">
-                  Entry Verification
-                </h3>
+              <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.22em] text-cfd-muted font-medium mb-1.5">
+                <span>Section 03</span>
+                <span>Proof of Engagement</span>
               </div>
-              <p className="mt-2 text-xs italic text-muted font-serif">
-                Verify your entry actions to qualify for the draw.
+              <h2 className="font-serif text-2xl sm:text-4xl font-normal text-cfd-black">
+                Entry verification. <span className="italic font-light">The social actions.</span>
+              </h2>
+              <p className="mt-2 text-xs text-cfd-muted leading-relaxed font-serif italic max-w-2xl">
+                Verify your entry actions to qualify for the audited random draw.
               </p>
             </div>
 
             {/* Comment Link */}
-            <label className="flex flex-col gap-1.5">
-              <span className="text-xs uppercase tracking-wider text-muted font-medium">
-                Link to your comment on the entry post (tagging 3 friends) <span className="text-gold">*</span>
+            <label className="flex flex-col gap-2">
+              <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black">
+                Link to your comment on the entry post (tagging 3 friends) <span className="text-neutral-400">*</span>
               </span>
               <input
                 type="text"
                 required
-                placeholder="https://instagram.com/p/... or your Instagram handle + comment time"
+                placeholder="https://instagram.com/p/... or your handle and comment details"
                 value={form.commentLink}
                 onChange={(e) => update("commentLink", e.target.value)}
-                className="rounded border border-border bg-cream px-3.5 py-2.5 text-sm text-espresso placeholder:text-[#a6927b] focus:border-gold focus:outline-none transition-colors"
+                className="rounded-xs border border-cfd-border bg-white px-4 py-3 text-sm text-cfd-black placeholder:text-cfd-muted/60 focus:border-cfd-black focus:outline-none transition-colors"
               />
-              <span className="text-[11px] text-muted">
-                Paste the URL to your comment or specify your handle so our team can verify your 3 tags.
+              <span className="text-[11px] text-cfd-muted">
+                Verifies Entry 1 without manually searching comments
               </span>
             </label>
 
             {/* Follow Confirmation Checkbox */}
-            <label className="flex items-start gap-3 rounded-lg border border-border bg-cream p-4 cursor-pointer hover:border-gold-light transition-colors">
+            <label className="flex items-start gap-3 border border-cfd-border bg-cfd-newsprint p-4 sm:p-5 cursor-pointer hover:border-black transition-colors">
               <input
                 type="checkbox"
                 required
                 checked={form.confirmFollow}
                 onChange={(e) => update("confirmFollow", e.target.checked)}
-                className="accent-[#b8956e] h-4 w-4 mt-0.5 flex-shrink-0"
+                className="accent-black h-4 w-4 mt-0.5 flex-shrink-0"
               />
-              <span className="text-xs leading-relaxed text-espresso-soft">
-                <strong className="text-espresso">Follower Verification: </strong>
-                I confirm I follow Creative Forge Digital on at least 2 of the 3 platforms I&apos;ve indicated above (Instagram, Facebook, TikTok). Spot-checked on CFD&apos;s side before the draw. <span className="text-gold">*</span>
+              <span className="text-xs leading-relaxed text-cfd-charcoal font-serif">
+                I confirm I follow Creative Forge Digital on at least 2 of the 3 platforms I&apos;ve indicated above. <span className="text-neutral-400 font-sans">*</span>
               </span>
             </label>
 
-            {/* Bonus Entry: Story Screenshot Upload */}
-            <div className="rounded-lg border border-gold-light/60 bg-gold/5 p-5">
+            {/* Bonus Entry Plate: Story Screenshot */}
+            <div className="border border-cfd-border bg-cfd-newsprint p-5 sm:p-6">
               <div className="flex items-center justify-between">
-                <span className="text-xs uppercase tracking-wider font-semibold text-espresso flex items-center gap-2">
+                <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black flex items-center gap-2">
                   <span>Screenshot of your Instagram Story</span>
-                  <span className="rounded-full bg-gold/20 px-2 py-0.5 text-[10px] font-bold text-espresso border border-gold/40">
-                    ★ BONUS 2ND ENTRY
+                  <span className="bg-black text-white px-2 py-0.5 text-[10px] uppercase tracking-wider font-semibold">
+                    Bonus 2nd Entry
                   </span>
                 </span>
-                <span className="text-[11px] text-muted font-medium">Optional</span>
+                <span className="text-[11px] text-cfd-muted">Optional</span>
               </div>
 
-              {/* Instructional Text */}
-              <p className="mt-2 text-xs leading-relaxed text-espresso-soft font-serif italic">
+              <p className="mt-2 text-xs leading-relaxed text-cfd-charcoal font-serif italic">
                 &ldquo;Your Story must show your wedding hashtag and #CreativeForgeDigital, and tag @creativeforgedigital.&rdquo;
               </p>
-              <p className="mt-1 text-[11px] text-muted">
-                Since Stories disappear after 24 hours, uploading your screenshot here serves as permanent proof to secure your double entry!
+              <p className="mt-1 text-[11px] text-cfd-muted">
+                Stories disappear after 24 hours — upload your screenshot here before it expires to secure your second entry.
               </p>
 
               {/* Upload Dropzone */}
               <div className="mt-4">
                 {form.storyPreview ? (
-                  <div className="relative inline-flex flex-col items-center rounded-lg border border-gold bg-cream p-3 shadow-xs">
+                  <div className="relative inline-flex flex-col items-center border border-cfd-border bg-white p-3 shadow-xs">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={form.storyPreview}
-                      alt="Story preview"
-                      className="h-44 w-auto max-w-full rounded object-contain"
+                      alt="Story verification screenshot"
+                      className="h-48 w-auto max-w-full object-contain"
                     />
-                    <div className="mt-2 flex items-center justify-between w-full text-xs text-muted">
+                    <div className="mt-3 flex items-center justify-between w-full text-xs text-cfd-muted">
                       <span className="truncate max-w-[200px]">{form.storyFile?.name}</span>
                       <button
                         type="button"
                         onClick={removeStoryFile}
-                        className="text-red-600 hover:text-red-800 font-semibold cursor-pointer underline text-[11px]"
+                        className="text-red-700 hover:text-black font-semibold cursor-pointer underline text-[11px]"
                       >
-                        Remove
+                        Remove file
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border hover:border-gold bg-cream p-6 cursor-pointer transition-colors text-center">
-                    <svg className="h-8 w-8 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span className="mt-2 text-xs font-semibold text-espresso">
+                  <label className="flex flex-col items-center justify-center border-2 border-dashed border-cfd-border hover:border-cfd-black bg-white p-8 cursor-pointer transition-colors text-center">
+                    <span className="font-serif text-lg font-medium text-cfd-black">
                       Upload Story Screenshot
                     </span>
-                    <span className="mt-0.5 text-[11px] text-muted">
+                    <span className="mt-1 text-[11px] uppercase tracking-wider text-cfd-muted">
                       JPG, PNG, or WEBP up to 10MB
                     </span>
                     <input
@@ -923,72 +945,70 @@ export default function CompetitionForm() {
           </div>
 
           {/* ========================================================================= */}
-          {/* SECTION 4: CONSENT & LEGAL */}
+          {/* 04. CONSENT & LEGAL */}
           {/* ========================================================================= */}
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-7">
             <div>
-              <div className="flex items-center gap-3">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gold text-cream text-xs font-semibold">
-                  4
-                </span>
-                <h3 className="font-serif text-2xl sm:text-3xl font-medium text-espresso">
-                  Consent &amp; Legal
-                </h3>
+              <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.22em] text-cfd-muted font-medium mb-1.5">
+                <span>Section 04</span>
+                <span>Compliance &amp; Governance</span>
               </div>
-              <p className="mt-2 text-xs italic text-muted font-serif">
-                Kept strictly separate per the Consumer Protection Act and POPIA regulations.
+              <h2 className="font-serif text-2xl sm:text-4xl font-normal text-cfd-black">
+                Consent &amp; legal. <span className="italic font-light">POPIA and CPA.</span>
+              </h2>
+              <p className="mt-2 text-xs text-cfd-muted leading-relaxed font-serif italic max-w-2xl">
+                Kept separate and explicit, per the Consumer Protection Act 68 of 2008 and POPIA.
               </p>
             </div>
 
             {/* Terms & Conditions Checkbox */}
-            <div className="rounded-lg border border-border bg-cream p-4">
+            <div className="border border-cfd-border bg-white p-4 sm:p-5">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   required
                   checked={form.termsAccepted}
                   onChange={(e) => update("termsAccepted", e.target.checked)}
-                  className="accent-[#b8956e] h-4 w-4 mt-0.5 flex-shrink-0"
+                  className="accent-black h-4 w-4 mt-0.5 flex-shrink-0"
                 />
-                <span className="text-xs leading-relaxed text-espresso-soft">
+                <span className="text-xs leading-relaxed text-cfd-charcoal font-serif">
                   I have read and agree to the{" "}
                   <button
                     type="button"
                     onClick={() => setTermsModalOpen(true)}
-                    className="font-semibold text-gold underline underline-offset-2 hover:text-espresso"
+                    className="font-semibold text-cfd-black underline underline-offset-4 hover:text-neutral-600"
                   >
                     Competition Terms &amp; Conditions
                   </button>
-                  . <span className="text-gold">*</span>
+                  . <span className="text-neutral-400 font-sans">*</span>
                 </span>
               </label>
             </div>
 
             {/* POPIA Marketing Opt-In Checkbox */}
-            <div className="rounded-lg border border-border bg-cream p-4">
+            <div className="border border-cfd-border bg-white p-4 sm:p-5">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={form.marketingConsent}
                   onChange={(e) => update("marketingConsent", e.target.checked)}
-                  className="accent-[#b8956e] h-4 w-4 mt-0.5 flex-shrink-0"
+                  className="accent-black h-4 w-4 mt-0.5 flex-shrink-0"
                 />
-                <span className="text-xs leading-relaxed text-espresso-soft">
-                  <strong className="text-espresso">Marketing Updates (Optional): </strong>
-                  I&apos;d like to receive inspiring wedding website ideas, design trends, and special offers from Creative Forge Digital. (Separately unbundled per POPIA compliance; you may unsubscribe at any time).
+                <span className="text-xs leading-relaxed text-cfd-charcoal font-serif">
+                  I&apos;d like to receive marketing communication from Creative Forge Digital. (Unbundled per POPIA Section 69; you may unsubscribe at any time).
                 </span>
               </label>
             </div>
 
-            {/* Anti-Bot Security Challenge */}
-            <div className="rounded-lg border border-border bg-cream p-4">
-              <label className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            {/* Anti-Bot Challenge */}
+            <div className="border border-cfd-border bg-cfd-newsprint p-4 sm:p-5">
+              <label className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <span className="text-xs uppercase tracking-wider font-semibold text-espresso block">
-                    Security Verification <span className="text-gold">*</span>
+                  <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black block">
+                    Security Verification <span className="text-neutral-400">*</span>
                   </span>
-                  <span className="text-[11px] text-muted">
-                    To prevent automated entries: What is <strong>3 + 4</strong>?
+                  <span className="text-xs text-cfd-muted font-serif">
+                    Automated entry filter: What is <strong>3 + 4</strong>?
                   </span>
                 </div>
                 <input
@@ -997,33 +1017,30 @@ export default function CompetitionForm() {
                   placeholder="Your answer"
                   value={form.captchaAnswer}
                   onChange={(e) => update("captchaAnswer", e.target.value)}
-                  className="w-32 rounded border border-border bg-cream-soft px-3 py-2 text-center text-sm font-semibold text-espresso focus:border-gold focus:outline-none"
+                  className="w-32 rounded-xs border border-cfd-border bg-white px-3 py-2 text-center text-sm font-semibold text-cfd-black focus:border-cfd-black focus:outline-none"
                 />
               </label>
             </div>
 
-            {/* Submit Action */}
-            <div className="pt-4 flex flex-col items-center gap-3">
+            {/* Submit Action (CFD Signature Button) */}
+            <div className="pt-6 flex flex-col items-start sm:items-center gap-4">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto min-w-[280px] rounded-none border border-espresso bg-espresso px-8 py-3.5 text-center font-sans text-xs font-semibold uppercase tracking-[0.25em] text-cream shadow-lift transition-all hover:bg-gold hover:border-gold disabled:opacity-50 cursor-pointer"
+                className="w-full sm:w-auto min-w-[300px] border border-cfd-black bg-cfd-black px-9 py-4 text-center font-sans text-xs font-semibold uppercase tracking-[0.22em] text-white shadow-lift transition-all hover:bg-neutral-800 disabled:opacity-50 cursor-pointer inline-flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
-                  <span className="inline-flex items-center gap-2">
-                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Recording Your Entry...
-                  </span>
+                  <span>Processing Your Entry...</span>
                 ) : (
-                  <span>Submit Competition Entry</span>
+                  <>
+                    <span>Submit Competition Entry</span>
+                    <span className="text-sm">→</span>
+                  </>
                 )}
               </button>
 
-              <span className="text-[11px] text-muted tracking-wide">
-                🔒 Free entry • Encrypted &amp; securely handled under POPIA Act
+              <span className="text-[11px] uppercase tracking-wider text-cfd-muted">
+                Free to enter • Verified &amp; Encrypted per POPIA
               </span>
             </div>
           </div>
