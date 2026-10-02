@@ -4,12 +4,18 @@ type PoolType = any;
 let pool: PoolType = null;
 let isInitialized = false;
 
-async function getMysqlDriver() {
+declare const __non_webpack_require__: any;
+
+function getMysqlDriver() {
   try {
-    const mod = await import("mysql2/promise");
+    const req =
+      typeof __non_webpack_require__ !== "undefined"
+        ? __non_webpack_require__
+        : eval("require");
+    const mod = req("mysql2/promise");
     return mod.default || mod;
   } catch (err) {
-    console.warn("Notice: 'mysql2' package is not yet installed in node_modules. Run 'npm install mysql2' in Plesk.", err);
+    console.warn("Notice: 'mysql2' package is not yet loaded in node_modules.", err);
     return null;
   }
 }
