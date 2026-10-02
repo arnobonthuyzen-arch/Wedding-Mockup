@@ -164,9 +164,16 @@ export default function CompetitionForm() {
       return;
     }
 
-    // 4. Validate wedding date confirmation
+    // 4. Validate wedding date (must be in 2027 per clause 2.8 & 5.2)
     if (!form.weddingDate) {
       setSubmitError("Please provide your confirmed wedding date.");
+      return;
+    }
+    const weddingYear = new Date(form.weddingDate).getFullYear();
+    if (weddingYear !== 2027) {
+      setSubmitError(
+        "Only weddings taking place in the 2027 calendar year are eligible for this prize (Clause 2.8 & 5.2 of Terms & Conditions)."
+      );
       return;
     }
     if (!form.dateConfirmed) {
@@ -724,12 +731,14 @@ export default function CompetitionForm() {
                 <input
                   type="date"
                   required
+                  min="2027-01-01"
+                  max="2027-12-31"
                   value={form.weddingDate}
                   onChange={(e) => update("weddingDate", e.target.value)}
                   className="rounded border border-border bg-cream px-3.5 py-2.5 text-sm text-espresso focus:border-gold focus:outline-none transition-colors"
                 />
                 <span className="text-[11px] text-muted">
-                  Must be a specific date, not a general year
+                  Must be in 2027 (Clause 2.8: Only weddings in 2027 are eligible)
                 </span>
               </label>
 

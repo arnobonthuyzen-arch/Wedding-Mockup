@@ -84,12 +84,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 5. Validate Wedding Information
+    // 5. Validate Wedding Information (2027 requirement per clause 2.8 & 5.2)
     if (!weddingDate || !weddingHashtag) {
       return NextResponse.json(
         {
           success: false,
           error: "Confirmed wedding date and unique wedding hashtag are required.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const weddingYear = new Date(weddingDate).getFullYear();
+    if (weddingYear !== 2027) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Eligibility restriction: Only weddings scheduled within the 2027 calendar year are eligible for this prize (Clause 2.8 & 5.2 of Terms & Conditions).",
         },
         { status: 400 }
       );
