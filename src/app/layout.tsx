@@ -18,9 +18,9 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Kayla & Wynand | 14 March 2027",
+  title: "Win a Bespoke Wedding Website | Creative Forge Digital",
   description:
-    "Join Kayla and Wynand as they celebrate their wedding in Pretoria, South Africa on 14 March 2027.",
+    "Enter the Creative Forge Digital competition to stand a chance to win a custom luxury wedding website for your 2027 wedding. Valued at R4,500.",
 };
 
 export default function RootLayout({
