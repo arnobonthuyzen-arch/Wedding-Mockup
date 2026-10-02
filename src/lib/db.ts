@@ -12,7 +12,8 @@ function getMysqlDriver() {
       typeof __non_webpack_require__ !== "undefined"
         ? __non_webpack_require__
         : eval("require");
-    const mod = req("mysql2/promise");
+    const pkg = ["mysql2", "promise"].join("/");
+    const mod = req(pkg);
     return mod.default || mod;
   } catch (err) {
     console.warn("Notice: 'mysql2' package is not yet loaded in node_modules.", err);
