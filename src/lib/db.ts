@@ -1,35 +1,51 @@
-import mysql from "mysql2/promise";
+// Database helper with safe dynamic resolution for MariaDB / MySQL
 
-let pool: mysql.Pool | null = null;
+type PoolType = any;
+let pool: PoolType = null;
 let isInitialized = false;
 
-export function getDbPool(): mysql.Pool {
-  if (!pool) {
-    const host = process.env.DB_HOST || "localhost";
-    const port = Number(process.env.DB_PORT) || 3306;
-    const user = process.env.DB_USER || "Date";
-    const password = process.env.DB_PASSWORD || "DyGi9P5qo_l0nm%a";
-    const database = process.env.DB_NAME || "bonthuyz_Wedding";
-
-    pool = mysql.createPool({
-      host,
-      port,
-      user,
-      password,
-      database,
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0,
-      connectTimeout: 10000,
-    });
+async function getMysqlDriver() {
+  try {
+    const mod = await import("mysql2/promise");
+    return mod.default || mod;
+  } catch (err) {
+    console.warn("Notice: 'mysql2' package is not yet installed in node_modules. Run 'npm install mysql2' in Plesk.", err);
+    return null;
   }
+}
+
+export async function getDbPool(): Promise<PoolType> {
+  if (pool) return pool;
+
+  const mysql = await getMysqlDriver();
+  if (!mysql) return null;
+
+  const host = process.env.DB_HOST || "localhost";
+  const port = Number(process.env.DB_PORT) || 3306;
+  const user = process.env.DB_USER || "Date";
+  const password = process.env.DB_PASSWORD || "DyGi9P5qo_l0nm%a";
+  const database = process.env.DB_NAME || "bonthuyz_Wedding";
+
+  pool = mysql.createPool({
+    host,
+    port,
+    user,
+    password,
+    database,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    connectTimeout: 10000,
+  });
+
   return pool;
 }
 
-export async function initDatabase() {
-  if (isInitialized) return;
+export async function initDatabase(): Promise<boolean> {
+  if (isInitialized) return true;
 
-  const db = getDbPool();
+  const db = await getDbPool();
+  if (!db) return false;
 
   const createTableQuery = `
     CREATE TABLE IF NOT EXISTS competition_entries (
@@ -66,6 +82,7 @@ export async function initDatabase() {
 
   await db.query(createTableQuery);
   isInitialized = true;
+  return true;
 }
 
 export interface CompetitionEntryPayload {
@@ -98,8 +115,14 @@ export interface CompetitionEntryPayload {
 
 export async function insertCompetitionEntry(data: CompetitionEntryPayload) {
   try {
-    await initDatabase();
-    const db = getDbPool();
+    const initialized = await initDatabase();
+    if (!initialized) {
+      console.warn("Skipping DB insert because mysql2 is not loaded. Entry saved to backup JSON.");
+      return { success: false, fallback: true };
+    }
+
+    const db = await getDbPool();
+    if (!db) return { success: false, fallback: true };
 
     const insertQuery = `
       INSERT INTO competition_entries (
@@ -163,6 +186,6 @@ export async function insertCompetitionEntry(data: CompetitionEntryPayload) {
     return { success: true, result };
   } catch (err) {
     console.error("Database insert error:", err);
-    throw err;
+    return { success: false, error: err };
   }
 }

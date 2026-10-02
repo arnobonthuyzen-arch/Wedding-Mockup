@@ -280,7 +280,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const db = getDbPool();
+    const db = await getDbPool();
+    if (!db) {
+      throw new Error("Database pool not available");
+    }
     const [rows] = await db.query(
       "SELECT id, entry_id, entries_count, full_name, relationship, email, phone, couple_names, wedding_date, wedding_hashtag, is_drawn_winner, created_at FROM competition_entries ORDER BY created_at DESC"
     );
