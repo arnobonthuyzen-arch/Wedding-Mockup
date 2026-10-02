@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
+import { insertCompetitionEntry, getDbPool } from "@/lib/db";
 
 // SA Phone Validation helper
 const validateSAPhone = (phone: string): boolean => {
@@ -197,7 +198,42 @@ export async function POST(req: NextRequest) {
       userAgent: req.headers.get("user-agent") || "unknown",
     };
 
-    // Persist to data/competition-entries.json
+    // 1. Persist to MariaDB / MySQL Database
+    try {
+      await insertCompetitionEntry({
+        entryId,
+        entriesCount,
+        fullName,
+        relationship,
+        email,
+        phone,
+        residentAge18: true,
+        instagramHandle: noInstagram ? null : instagramHandle,
+        noInstagram,
+        facebookHandle: noFacebook ? null : facebookHandle,
+        noFacebook,
+        tiktokHandle: noTikTok ? null : tiktokHandle,
+        noTikTok,
+        coupleNames,
+        weddingDate,
+        weddingHashtag,
+        coupleEmail: coupleEmail || null,
+        couplePhone: couplePhone || null,
+        commentLink,
+        confirmFollow,
+        storyScreenshotPath: savedScreenshotFilename
+          ? `/uploads/competition/${savedScreenshotFilename}`
+          : null,
+        termsAccepted,
+        marketingConsent,
+        clientIp: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || null,
+        userAgent: req.headers.get("user-agent") || null,
+      });
+    } catch (dbErr) {
+      console.error("Warning: MariaDB insert error (fallback active):", dbErr);
+    }
+
+    // 2. Persist to data/competition-entries.json (as backup & audit trail)
     try {
       const dataDir = path.join(process.cwd(), "data");
       await fs.mkdir(dataDir, { recursive: true });
@@ -215,7 +251,7 @@ export async function POST(req: NextRequest) {
       entries.push(entryRecord);
       await fs.writeFile(dataFilePath, JSON.stringify(entries, null, 2), "utf8");
     } catch (saveErr) {
-      console.error("Error writing entry to JSON file:", saveErr);
+      console.error("Error writing entry to JSON file backup:", saveErr);
     }
 
     return NextResponse.json({
@@ -231,5 +267,46 @@ export async function POST(req: NextRequest) {
       { success: false, error: "An internal server error occurred while recording your entry." },
       { status: 500 }
     );
+  }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const secret = searchParams.get("key");
+
+    // Optional admin security check if ADMIN_SECRET is set
+    if (process.env.ADMIN_SECRET && secret !== process.env.ADMIN_SECRET) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const db = getDbPool();
+    const [rows] = await db.query(
+      "SELECT id, entry_id, entries_count, full_name, relationship, email, phone, couple_names, wedding_date, wedding_hashtag, is_drawn_winner, created_at FROM competition_entries ORDER BY created_at DESC"
+    );
+
+    return NextResponse.json({
+      success: true,
+      count: Array.isArray(rows) ? rows.length : 0,
+      entries: rows,
+    });
+  } catch (err: unknown) {
+    // If DB is unreachable, return fallback from JSON file
+    try {
+      const dataFilePath = path.join(process.cwd(), "data", "competition-entries.json");
+      const fileContent = await fs.readFile(dataFilePath, "utf8");
+      const entries = JSON.parse(fileContent);
+      return NextResponse.json({
+        success: true,
+        source: "json_fallback",
+        count: entries.length,
+        entries,
+      });
+    } catch {
+      return NextResponse.json(
+        { success: false, error: "Could not retrieve entries." },
+        { status: 500 }
+      );
+    }
   }
 }
