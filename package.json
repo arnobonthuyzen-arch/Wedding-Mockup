@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "next build --webpack && mkdir -p tmp && touch tmp/restart.txt",
+    "build": "next build --webpack && node -e \"const fs = require('fs'); fs.mkdirSync('tmp', {recursive: true}); fs.writeFileSync('tmp/restart.txt', String(Date.now()));\"",
     "start": "NODE_ENV=production node server.js",
+    "restart": "node -e \"const fs = require('fs'); fs.mkdirSync('tmp', {recursive: true}); fs.writeFileSync('tmp/restart.txt', String(Date.now())); console.log('Application restart triggered.');\"",
     "lint": "eslint"
   },
   "dependencies": {
