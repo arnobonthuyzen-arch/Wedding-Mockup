@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
 import { insertCompetitionEntry, getDbPool } from "@/lib/db";
+import {
+  sendCompetitionNotificationEmail,
+  EmailAttachment,
+  CompetitionEmailData,
+} from "@/lib/email";
 
 // SA Phone Validation helper
 const validateSAPhone = (phone: string): boolean => {
@@ -32,7 +37,7 @@ export async function POST(req: NextRequest) {
     const coupleEmail = (formData.get("coupleEmail") as string)?.trim() || "";
     const couplePhone = (formData.get("couplePhone") as string)?.trim() || "";
 
-    const commentLink = (formData.get("commentLink") as string)?.trim();
+    const commentLink = (formData.get("commentLink") as string)?.trim() || "";
     const confirmFollow = formData.get("confirmFollow") === "true";
     const termsAccepted = formData.get("termsAccepted") === "true";
     const marketingConsent = formData.get("marketingConsent") === "true";
@@ -108,12 +113,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 6. Validate Verification & Consents
-    if (!commentLink || !confirmFollow) {
+    // 6. Validate Verification & Consents (Comment proof: link OR screenshot)
+    const commentScreenshotFile = formData.get("commentScreenshot") as File | null;
+    const hasCommentLink = commentLink.length > 0;
+    const hasCommentScreenshotUpload = Boolean(
+      commentScreenshotFile &&
+      typeof commentScreenshotFile === "object" &&
+      commentScreenshotFile.size > 0
+    );
+
+    if (!hasCommentLink && !hasCommentScreenshotUpload) {
       return NextResponse.json(
         {
           success: false,
-          error: "Comment verification link and follow confirmation are required.",
+          error: "Comment verification is required: Please provide either a link to your comment or upload a screenshot of your comment tagging 3 friends.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!confirmFollow) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Please confirm that you follow Creative Forge Digital on at least 2 platforms.",
         },
         { status: 400 }
       );
@@ -133,36 +156,108 @@ export async function POST(req: NextRequest) {
     const randomHex = Math.floor(100000 + Math.random() * 900000);
     const entryId = `CFD-WED-${randomHex}`;
 
-    // Handle optional Story screenshot file
-    let savedScreenshotFilename: string | null = null;
+    // Ensure uploads directory exists
+    const uploadDir = path.join(process.cwd(), "public", "uploads", "competition");
+    await fs.mkdir(uploadDir, { recursive: true });
+
+    const emailAttachments: EmailAttachment[] = [];
+
+    // Enforce 2.5MB per item upload limit
+    const MAX_FILE_SIZE = 2.5 * 1024 * 1024;
+
+    const followProof1File = formData.get("followProof1") as File | null;
+    const followProof2File = formData.get("followProof2") as File | null;
     const storyFile = formData.get("storyScreenshot") as File | null;
+
+    if (commentScreenshotFile && typeof commentScreenshotFile === "object" && commentScreenshotFile.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { success: false, error: "Comment screenshot exceeds the 2.5MB limit. Please upload a smaller image." },
+        { status: 400 }
+      );
+    }
+
+    if (followProof1File && typeof followProof1File === "object" && followProof1File.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { success: false, error: "Follow proof photo 1 exceeds the 2.5MB limit. Please upload a smaller image." },
+        { status: 400 }
+      );
+    }
+
+    if (followProof2File && typeof followProof2File === "object" && followProof2File.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { success: false, error: "Follow proof photo 2 exceeds the 2.5MB limit. Please upload a smaller image." },
+        { status: 400 }
+      );
+    }
+
+    if (storyFile && typeof storyFile === "object" && storyFile.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { success: false, error: "Story screenshot exceeds the 2.5MB limit. Please upload a smaller image." },
+        { status: 400 }
+      );
+    }
+
+    // Helper to safely save uploaded image and prepare email attachment
+    const processUploadedFile = async (
+      file: File | null,
+      prefix: string
+    ): Promise<string | null> => {
+      if (!file || typeof file !== "object" || file.size === 0) {
+        return null;
+      }
+      try {
+        const ext = path.extname(file.name) || ".jpg";
+        const savedFilename = `${entryId}-${prefix}${ext}`;
+        const filePath = path.join(uploadDir, savedFilename);
+
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        await fs.writeFile(filePath, buffer);
+
+        // Add to email attachments (within 2.5MB limit)
+        if (file.size <= MAX_FILE_SIZE) {
+          emailAttachments.push({
+            filename: `${entryId}-${prefix}${ext}`,
+            content: buffer,
+            contentType: file.type || "image/jpeg",
+          });
+        }
+
+        return `/uploads/competition/${savedFilename}`;
+      } catch (err) {
+        console.error(`Error saving ${prefix} upload:`, err);
+        return null;
+      }
+    };
+
+    // 1. Process Comment Screenshot (Optional if link provided)
+    const commentScreenshotPath = await processUploadedFile(commentScreenshotFile, "comment");
+
+    // 2. Process Follow Proof Photo 1 (Optional)
+    const followProof1Path = await processUploadedFile(followProof1File, "follow-1");
+
+    // 3. Process Follow Proof Photo 2 (Optional)
+    const followProof2Path = await processUploadedFile(followProof2File, "follow-2");
+
+    // 4. Process Story Screenshot (Optional - unlocks bonus entry)
     let entriesCount = 1;
+    let storyScreenshotPath: string | null = null;
 
     if (storyFile && typeof storyFile === "object" && storyFile.size > 0) {
       entriesCount = 2; // Bonus entry unlocked!
-
-      try {
-        const uploadDir = path.join(process.cwd(), "public", "uploads", "competition");
-        await fs.mkdir(uploadDir, { recursive: true });
-
-        const ext = path.extname(storyFile.name) || ".jpg";
-        savedScreenshotFilename = `${entryId}-story${ext}`;
-        const filePath = path.join(uploadDir, savedScreenshotFilename);
-
-        const bytes = await storyFile.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        await fs.writeFile(filePath, buffer);
-      } catch (fileErr) {
-        console.error("Error saving story screenshot:", fileErr);
-        // Continue recording entry even if file save encounters an issue
-      }
+      storyScreenshotPath = await processUploadedFile(storyFile, "story-bonus");
     }
 
-    // Record entry object
+    const timestamp = new Date().toISOString();
+    const clientIp =
+      req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || null;
+    const userAgent = req.headers.get("user-agent") || null;
+
+    // Record entry object for backup JSON
     const entryRecord = {
       entryId,
       entriesCount,
-      timestamp: new Date().toISOString(),
+      timestamp,
       entrant: {
         fullName,
         relationship,
@@ -183,19 +278,23 @@ export async function POST(req: NextRequest) {
         couplePhone,
       },
       verification: {
-        commentLink,
+        commentLink: commentLink || null,
+        hasCommentScreenshot: Boolean(commentScreenshotPath),
+        commentScreenshotPath,
         confirmFollow,
+        hasFollowProof1: Boolean(followProof1Path),
+        followProof1Path,
+        hasFollowProof2: Boolean(followProof2Path),
+        followProof2Path,
         hasStoryScreenshot: entriesCount === 2,
-        storyScreenshotPath: savedScreenshotFilename
-          ? `/uploads/competition/${savedScreenshotFilename}`
-          : null,
+        storyScreenshotPath,
       },
       legal: {
         termsAccepted,
         marketingConsent,
       },
-      clientIp: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown",
-      userAgent: req.headers.get("user-agent") || "unknown",
+      clientIp,
+      userAgent,
     };
 
     // 1. Persist to MariaDB / MySQL Database
@@ -219,15 +318,16 @@ export async function POST(req: NextRequest) {
         weddingHashtag,
         coupleEmail: coupleEmail || null,
         couplePhone: couplePhone || null,
-        commentLink,
+        commentLink: commentLink || null,
+        commentScreenshotPath,
         confirmFollow,
-        storyScreenshotPath: savedScreenshotFilename
-          ? `/uploads/competition/${savedScreenshotFilename}`
-          : null,
+        followProof1Path,
+        followProof2Path,
+        storyScreenshotPath,
         termsAccepted,
         marketingConsent,
-        clientIp: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || null,
-        userAgent: req.headers.get("user-agent") || null,
+        clientIp,
+        userAgent,
       });
     } catch (dbErr) {
       console.error("Warning: MariaDB insert error (fallback active):", dbErr);
@@ -252,6 +352,54 @@ export async function POST(req: NextRequest) {
       await fs.writeFile(dataFilePath, JSON.stringify(entries, null, 2), "utf8");
     } catch (saveErr) {
       console.error("Error writing entry to JSON file backup:", saveErr);
+    }
+
+    // 3. Dispatch Email via Resend to admin & danielle
+    try {
+      const emailPayload: CompetitionEmailData = {
+        entryId,
+        entriesCount,
+        timestamp,
+        fullName,
+        relationship,
+        email,
+        phone,
+        residentAge18: true,
+        instagramHandle: noInstagram ? null : instagramHandle,
+        noInstagram,
+        facebookHandle: noFacebook ? null : facebookHandle,
+        noFacebook,
+        tiktokHandle: noTikTok ? null : tiktokHandle,
+        noTikTok,
+        coupleNames,
+        weddingDate,
+        weddingHashtag,
+        coupleEmail: coupleEmail || null,
+        couplePhone: couplePhone || null,
+        commentLink: commentLink || null,
+        hasCommentScreenshot: Boolean(commentScreenshotPath),
+        confirmFollow,
+        hasFollowProof1: Boolean(followProof1Path),
+        hasFollowProof2: Boolean(followProof2Path),
+        hasStoryScreenshot: Boolean(storyScreenshotPath),
+        termsAccepted,
+        marketingConsent,
+        clientIp,
+        userAgent,
+      };
+
+      const emailResult = await sendCompetitionNotificationEmail(
+        emailPayload,
+        emailAttachments
+      );
+
+      if (emailResult.success) {
+        console.log(`Competition entry email notification dispatched: ID ${emailResult.id}`);
+      } else {
+        console.warn("Notice: Competition email notification could not be sent:", emailResult.error);
+      }
+    } catch (emailErr) {
+      console.error("Error triggering Resend email notification:", emailErr);
     }
 
     return NextResponse.json({
@@ -285,7 +433,7 @@ export async function GET(req: NextRequest) {
       throw new Error("Database pool not available");
     }
     const [rows] = await db.query(
-      "SELECT id, entry_id, entries_count, full_name, relationship, email, phone, couple_names, wedding_date, wedding_hashtag, is_drawn_winner, created_at FROM competition_entries ORDER BY created_at DESC"
+      "SELECT id, entry_id, entries_count, full_name, relationship, email, phone, couple_names, wedding_date, wedding_hashtag, comment_link, comment_screenshot_path, follow_proof_1_path, follow_proof_2_path, story_screenshot_path, is_drawn_winner, created_at FROM competition_entries ORDER BY created_at DESC"
     );
 
     return NextResponse.json({
@@ -293,7 +441,7 @@ export async function GET(req: NextRequest) {
       count: Array.isArray(rows) ? rows.length : 0,
       entries: rows,
     });
-  } catch (err: unknown) {
+  } catch {
     // If DB is unreachable, return fallback from JSON file
     try {
       const dataFilePath = path.join(process.cwd(), "data", "competition-entries.json");

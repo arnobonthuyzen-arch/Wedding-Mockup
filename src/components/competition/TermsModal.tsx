@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 
 interface TermsModalProps {
   isOpen: boolean;
@@ -25,53 +26,60 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-espresso/70 p-4 backdrop-blur-sm sm:p-6"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm sm:p-6"
       onClick={onClose}
     >
       <div
-        className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto border border-border bg-cream-soft p-6 shadow-lift sm:p-10"
+        className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto border border-cfd-border bg-white p-6 shadow-lift sm:p-10 text-cfd-charcoal font-sans"
         onClick={(e) => e.stopPropagation()}
       >
-        <span className="pointer-events-none absolute inset-2 border border-gold-light/30" />
-
         {/* Close button */}
         <button
           onClick={onClose}
           aria-label="Close Terms"
-          className="absolute right-5 top-5 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-cream text-espresso transition-colors hover:border-gold hover:text-gold"
+          className="absolute right-5 top-5 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-cfd-border bg-cfd-newsprint text-cfd-charcoal transition-colors hover:border-black hover:text-black cursor-pointer"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
-        <div className="flex flex-col gap-6 font-serif text-espresso">
-          <div className="border-b border-gold-light/40 pb-4 text-center">
-            <span className="text-xs uppercase tracking-[0.3em] text-muted font-sans font-medium">
+        <div className="flex flex-col gap-6">
+          <div className="border-b border-cfd-border/80 pb-5 text-center">
+            <div className="mx-auto mb-2.5 flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-cfd-border bg-black shadow-xs">
+              <Image
+                src="/images/cfd-logo.png"
+                alt="Creative Forge Digital"
+                width={40}
+                height={40}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <span className="text-[11px] uppercase tracking-[0.3em] text-cfd-muted font-medium">
               Creative Forge Digital
             </span>
-            <h3 className="mt-1 font-serif text-3xl font-medium text-espresso sm:text-4xl">
+            <h3 className="mt-1 font-serif text-3xl font-medium text-cfd-black sm:text-4xl">
               Win a Wedding Website Competition
             </h3>
-            <p className="mt-2 text-sm italic text-espresso-soft">
-              Official Terms and Conditions
+            <p className="mt-1 text-sm italic font-serif text-cfd-muted">
+              Official Terms and Conditions (2027 Calendar Year)
             </p>
-            <div className="mt-3 inline-block rounded border border-border bg-cream px-3 py-1.5 text-[11px] text-muted font-sans">
-              Based on the Consumer Protection Act 68 of 2008 (Section 36 &amp; Regulation 11) and POPIA.
+            <div className="mt-3 inline-block rounded-xs border border-cfd-border bg-cfd-newsprint px-3 py-1.5 text-[11px] text-cfd-muted">
+              Consumer Protection Act 68 of 2008 &amp; POPIA Compliant
             </div>
           </div>
 
-          <div className="flex flex-col gap-6 text-sm leading-relaxed text-espresso-soft font-sans">
+          <div className="flex flex-col gap-6 text-xs sm:text-sm leading-relaxed text-cfd-charcoal font-sans">
             {/* 1. Creative Forge Digital */}
             <div>
-              <h4 className="font-serif text-lg font-semibold text-espresso">
+              <h4 className="font-serif text-base sm:text-lg font-semibold text-cfd-black">
                 1. Creative Forge Digital
               </h4>
-              <p className="mt-1">
+              <p className="mt-1 font-serif text-cfd-muted">
                 <strong>1.1</strong> The competition is run by Creative Forge Digital, contactable at{" "}
                 <a
                   href="mailto:admin@creativeforge.digital.co.za"
-                  className="text-gold underline hover:text-espresso"
+                  className="text-cfd-black underline hover:text-neutral-600"
                 >
                   admin@creativeforge.digital.co.za
                 </a>.
@@ -80,10 +88,10 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
 
             {/* 2. The Prize */}
             <div>
-              <h4 className="font-serif text-lg font-semibold text-espresso">
+              <h4 className="font-serif text-base sm:text-lg font-semibold text-cfd-black">
                 2. The Prize
               </h4>
-              <ul className="mt-1.5 space-y-2 list-none pl-0">
+              <ul className="mt-1.5 space-y-2 list-none pl-0 font-serif">
                 <li>
                   <strong>2.1</strong> One (1) winner will receive one custom-coded wedding website, valued at <strong>R4,500</strong>, including design, hosting, and domain registration.
                 </li>
@@ -119,10 +127,10 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
 
             {/* 3. Competition Period */}
             <div>
-              <h4 className="font-serif text-lg font-semibold text-espresso">
+              <h4 className="font-serif text-base sm:text-lg font-semibold text-cfd-black">
                 3. Competition Period
               </h4>
-              <ul className="mt-1.5 space-y-2 list-none pl-0">
+              <ul className="mt-1.5 space-y-2 list-none pl-0 font-serif">
                 <li>
                   <strong>3.1</strong> The competition opens on <strong>2 October 2026 at 00:00</strong> and closes on <strong>20 October 2026 at 23:59</strong> (South African standard time). Late entries will not be accepted.
                 </li>
@@ -134,13 +142,13 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
 
             {/* 4. How to Enter */}
             <div>
-              <h4 className="font-serif text-lg font-semibold text-espresso">
+              <h4 className="font-serif text-base sm:text-lg font-semibold text-cfd-black">
                 4. How to Enter
               </h4>
-              <ul className="mt-1.5 space-y-2 list-none pl-0">
+              <ul className="mt-1.5 space-y-2 list-none pl-0 font-serif">
                 <li>
                   <strong>4.1 Entry 1 (required — counts as one entry):</strong> To enter, participants must:
-                  <div className="pl-4 mt-1 space-y-1">
+                  <div className="pl-4 mt-1 space-y-1 text-cfd-muted">
                     <p>(a) Follow Creative Forge Digital on at least 2 of the following 3 platforms: Instagram, Facebook, and TikTok;</p>
                     <p>(b) Comment on the designated entry post, tagging 3 friends; and</p>
                     <p>(c) Complete the entry form available via the link in Creative Forge Digital&apos;s bio or official competition website.</p>
@@ -148,7 +156,7 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
                 </li>
                 <li>
                   <strong>4.2 Entry 2 (optional — counts as a second entry):</strong> In addition to Entry 1, participants may:
-                  <div className="pl-4 mt-1 space-y-1">
+                  <div className="pl-4 mt-1 space-y-1 text-cfd-muted">
                     <p>(a) Post the competition content to their Instagram Story, tagging Creative Forge Digital, using the hashtag #CreativeForgeDigital together with their own unique wedding hashtag, with the Story remaining live for a full 24 hours; and</p>
                     <p>(b) Upload a screenshot of that Story to the entry form before it expires, as proof of completion.</p>
                   </div>
@@ -170,10 +178,10 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
 
             {/* 5. Who May Enter */}
             <div>
-              <h4 className="font-serif text-lg font-semibold text-espresso">
+              <h4 className="font-serif text-base sm:text-lg font-semibold text-cfd-black">
                 5. Who May Enter
               </h4>
-              <ul className="mt-1.5 space-y-2 list-none pl-0">
+              <ul className="mt-1.5 space-y-2 list-none pl-0 font-serif">
                 <li>
                   <strong>5.1</strong> The competition is open to South African residents aged 18 or older. Entrants are not required to be engaged or planning their own wedding in order to enter.
                 </li>
@@ -191,10 +199,10 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
 
             {/* 6. Choosing the Winner */}
             <div>
-              <h4 className="font-serif text-lg font-semibold text-espresso">
+              <h4 className="font-serif text-base sm:text-lg font-semibold text-cfd-black">
                 6. Choosing the Winner
               </h4>
-              <ul className="mt-1.5 space-y-2 list-none pl-0">
+              <ul className="mt-1.5 space-y-2 list-none pl-0 font-serif">
                 <li>
                   <strong>6.1</strong> The winner will be chosen at random from all valid, verified entries on <strong>23 October 2026</strong>, using a certified random selection tool, screen-recorded and audited for fairness.
                 </li>
@@ -212,10 +220,10 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
 
             {/* 7. Claiming the Prize */}
             <div>
-              <h4 className="font-serif text-lg font-semibold text-espresso">
+              <h4 className="font-serif text-base sm:text-lg font-semibold text-cfd-black">
                 7. Claiming the Prize
               </h4>
-              <ul className="mt-1.5 space-y-2 list-none pl-0">
+              <ul className="mt-1.5 space-y-2 list-none pl-0 font-serif">
                 <li>
                   <strong>7.1</strong> The winner, and the couple receiving the prize where different from the entrant, must provide proof of identity, proof of the confirmed 2027 wedding date, and sign an acknowledgement of receipt of the prize.
                 </li>
@@ -227,20 +235,20 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
 
             {/* 8. Publicity */}
             <div>
-              <h4 className="font-serif text-lg font-semibold text-espresso">
+              <h4 className="font-serif text-base sm:text-lg font-semibold text-cfd-black">
                 8. Publicity
               </h4>
-              <p className="mt-1">
+              <p className="mt-1 font-serif text-cfd-muted">
                 <strong>8.1</strong> The winner may choose whether their name, image, or website is used in Creative Forge Digital&apos;s marketing. Consent will be requested separately, and they may refuse. Refusing does not affect the prize.
               </p>
             </div>
 
             {/* 9. Personal Information */}
             <div>
-              <h4 className="font-serif text-lg font-semibold text-espresso">
+              <h4 className="font-serif text-base sm:text-lg font-semibold text-cfd-black">
                 9. Personal Information
               </h4>
-              <ul className="mt-1.5 space-y-2 list-none pl-0">
+              <ul className="mt-1.5 space-y-2 list-none pl-0 font-serif">
                 <li>
                   <strong>9.1</strong> Personal information collected on the entry form is used only to run this competition and to contact the winner, in line with the Protection of Personal Information Act (POPIA).
                 </li>
@@ -255,20 +263,20 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
 
             {/* 10. Social Media Platforms */}
             <div>
-              <h4 className="font-serif text-lg font-semibold text-espresso">
+              <h4 className="font-serif text-base sm:text-lg font-semibold text-cfd-black">
                 10. Social Media Platforms
               </h4>
-              <p className="mt-1">
+              <p className="mt-1 font-serif text-cfd-muted">
                 <strong>10.1</strong> This competition is not sponsored, endorsed or administered by, or associated with, Instagram, Facebook, Meta, TikTok or any other platform. Entrants release these platforms from all liability.
               </p>
             </div>
 
             {/* 11. General */}
             <div>
-              <h4 className="font-serif text-lg font-semibold text-espresso">
+              <h4 className="font-serif text-base sm:text-lg font-semibold text-cfd-black">
                 11. General
               </h4>
-              <ul className="mt-1.5 space-y-2 list-none pl-0">
+              <ul className="mt-1.5 space-y-2 list-none pl-0 font-serif">
                 <li>
                   <strong>11.1</strong> Creative Forge Digital may disqualify entries that are fraudulent, automated, submitted from fake accounts, or otherwise in breach of these rules. Entries are monitored constantly for this purpose.
                 </li>
@@ -277,16 +285,10 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
                 </li>
                 <li>
                   <strong>11.3</strong> These rules are available free of charge at{" "}
-                  <a
-                    href="https://wedding.creativeforgedigital.co.za/terms"
-                    className="text-gold underline hover:text-espresso"
-                  >
-                    https://wedding.creativeforgedigital.co.za/terms
-                  </a>{" "}
-                  and on request from{" "}
+                  <span className="font-semibold text-cfd-black">https://wedding.creativeforgedigital.co.za/terms</span> and on request from{" "}
                   <a
                     href="mailto:admin@creativeforge.digital.co.za"
-                    className="text-gold underline hover:text-espresso"
+                    className="text-cfd-black underline hover:text-neutral-600"
                   >
                     admin@creativeforge.digital.co.za
                   </a>.
@@ -298,10 +300,10 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
             </div>
           </div>
 
-          <div className="mt-4 flex justify-end border-t border-gold-light/40 pt-4">
+          <div className="mt-4 flex justify-end border-t border-cfd-border/80 pt-4">
             <button
               onClick={onClose}
-              className="border border-espresso bg-espresso px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-cream transition-colors hover:bg-gold hover:border-gold font-sans"
+              className="border border-cfd-black bg-cfd-black px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-white transition-colors hover:bg-neutral-800 cursor-pointer font-sans"
             >
               I Understand &amp; Close
             </button>

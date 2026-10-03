@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import TermsModal from "./TermsModal";
 
 type Relationship =
   | "Bride"
   | "Groom"
+  | "Partner (Getting Married)"
+  | "Part of the Wedding Party"
   | "Part of the Bridal Party"
   | "Friend"
   | "Family Member"
@@ -30,7 +33,13 @@ interface FormState {
   coupleEmail: string;
   couplePhone: string;
   commentLink: string;
+  commentScreenshotFile: File | null;
+  commentScreenshotPreview: string | null;
   confirmFollow: boolean;
+  followProof1File: File | null;
+  followProof1Preview: string | null;
+  followProof2File: File | null;
+  followProof2Preview: string | null;
   storyFile: File | null;
   storyPreview: string | null;
   termsAccepted: boolean;
@@ -57,13 +66,22 @@ const INITIAL_FORM: FormState = {
   coupleEmail: "",
   couplePhone: "",
   commentLink: "",
+  commentScreenshotFile: null,
+  commentScreenshotPreview: null,
   confirmFollow: false,
+  followProof1File: null,
+  followProof1Preview: null,
+  followProof2File: null,
+  followProof2Preview: null,
   storyFile: null,
   storyPreview: null,
   termsAccepted: false,
   marketingConsent: false,
   captchaAnswer: "",
 };
+
+// Maximum file upload limit (2.5MB per item)
+const MAX_FILE_SIZE = 2.5 * 1024 * 1024;
 
 // South African phone validation: 0XX XXX XXXX or +27 XX XXX XXXX
 const validateSAPhone = (phone: string): boolean => {
@@ -90,8 +108,13 @@ export default function CompetitionForm() {
   };
 
   // Relationship check
-  const isDirectCouple = form.relationship === "Bride" || form.relationship === "Groom";
+  const isDirectCouple =
+    form.relationship === "Bride" ||
+    form.relationship === "Groom" ||
+    form.relationship === "Partner (Getting Married)";
+
   const isEnteringForCouple =
+    form.relationship === "Part of the Wedding Party" ||
     form.relationship === "Part of the Bridal Party" ||
     form.relationship === "Friend" ||
     form.relationship === "Family Member";
@@ -105,7 +128,7 @@ export default function CompetitionForm() {
 
   const noAccountCount = [form.noInstagram, form.noFacebook, form.noTikTok].filter(Boolean).length;
 
-  // Handle file upload
+  // Handle Story file upload
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -115,8 +138,8 @@ export default function CompetitionForm() {
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      setSubmitError("Screenshot must be smaller than 10MB.");
+    if (file.size > MAX_FILE_SIZE) {
+      setSubmitError("Screenshot must be smaller than 2.5MB.");
       return;
     }
 
@@ -136,6 +159,107 @@ export default function CompetitionForm() {
       ...prev,
       storyFile: null,
       storyPreview: null,
+    }));
+  };
+
+  // Handle follow proof uploads (2 optional photo uploads)
+  const handleFollowProof1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setSubmitError("Please upload an image file (JPG, PNG, WEBP).");
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setSubmitError("Follow proof photo must be smaller than 2.5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((prev) => ({
+        ...prev,
+        followProof1File: file,
+        followProof1Preview: reader.result as string,
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeFollowProof1 = () => {
+    setForm((prev) => ({
+      ...prev,
+      followProof1File: null,
+      followProof1Preview: null,
+    }));
+  };
+
+  const handleFollowProof2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setSubmitError("Please upload an image file (JPG, PNG, WEBP).");
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setSubmitError("Follow proof photo must be smaller than 2.5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((prev) => ({
+        ...prev,
+        followProof2File: file,
+        followProof2Preview: reader.result as string,
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeFollowProof2 = () => {
+    setForm((prev) => ({
+      ...prev,
+      followProof2File: null,
+      followProof2Preview: null,
+    }));
+  };
+
+  // Handle comment screenshot upload (alternative to comment link)
+  const handleCommentScreenshotChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setSubmitError("Please upload an image file (JPG, PNG, WEBP).");
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setSubmitError("Comment screenshot must be smaller than 2.5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((prev) => ({
+        ...prev,
+        commentScreenshotFile: file,
+        commentScreenshotPreview: reader.result as string,
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeCommentScreenshot = () => {
+    setForm((prev) => ({
+      ...prev,
+      commentScreenshotFile: null,
+      commentScreenshotPreview: null,
     }));
   };
 
@@ -186,9 +310,9 @@ export default function CompetitionForm() {
       return;
     }
 
-    // 6. Comment link
-    if (!form.commentLink.trim()) {
-      setSubmitError("Please provide the link to your comment tagging 3 friends.");
+    // 6. Comment verification (link or screenshot required)
+    if (!form.commentLink.trim() && !form.commentScreenshotFile) {
+      setSubmitError("Please provide either a link to your comment or upload a screenshot of your comment tagging 3 friends.");
       return;
     }
 
@@ -234,10 +358,22 @@ export default function CompetitionForm() {
       formData.append("coupleEmail", form.coupleEmail);
       formData.append("couplePhone", form.couplePhone);
 
-      formData.append("commentLink", form.commentLink);
+      formData.append("commentLink", form.commentLink.trim());
+      if (form.commentScreenshotFile) {
+        formData.append("commentScreenshot", form.commentScreenshotFile);
+      }
+
       formData.append("confirmFollow", String(form.confirmFollow));
       formData.append("termsAccepted", String(form.termsAccepted));
       formData.append("marketingConsent", String(form.marketingConsent));
+
+      if (form.followProof1File) {
+        formData.append("followProof1", form.followProof1File);
+      }
+
+      if (form.followProof2File) {
+        formData.append("followProof2", form.followProof2File);
+      }
 
       if (form.storyFile) {
         formData.append("storyScreenshot", form.storyFile);
@@ -276,8 +412,14 @@ export default function CompetitionForm() {
   if (submittedData) {
     return (
       <section className="relative mx-auto my-12 max-w-3xl border border-cfd-border bg-white p-8 sm:p-14 text-center shadow-lift text-cfd-charcoal font-sans">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-cfd-black bg-cfd-black text-white font-serif italic text-xl">
-          CF
+        <div className="mx-auto flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-cfd-black bg-black shadow-lift">
+          <Image
+            src="/images/cfd-logo.png"
+            alt="Creative Forge Digital Logo"
+            width={64}
+            height={64}
+            className="h-full w-full object-cover"
+          />
         </div>
 
         <span className="mt-6 block text-[11px] uppercase tracking-[0.3em] text-cfd-muted font-medium">
@@ -438,7 +580,8 @@ export default function CompetitionForm() {
                   <option value="" disabled>Select relationship...</option>
                   <option value="Bride">Bride</option>
                   <option value="Groom">Groom</option>
-                  <option value="Part of the Bridal Party">Part of the Bridal Party</option>
+                  <option value="Partner (Getting Married)">Partner (Getting Married)</option>
+                  <option value="Part of the Wedding Party">Part of the Wedding Party</option>
                   <option value="Friend">Friend</option>
                   <option value="Family Member">Family Member</option>
                 </select>
@@ -852,23 +995,110 @@ export default function CompetitionForm() {
               </p>
             </div>
 
-            {/* Comment Link */}
-            <label className="flex flex-col gap-2">
-              <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black">
-                Link to your comment on the entry post (tagging 3 friends) <span className="text-neutral-400">*</span>
-              </span>
-              <input
-                type="text"
-                required
-                placeholder="https://instagram.com/p/... or your handle and comment details"
-                value={form.commentLink}
-                onChange={(e) => update("commentLink", e.target.value)}
-                className="rounded-xs border border-cfd-border bg-white px-4 py-3 text-sm text-cfd-black placeholder:text-cfd-muted/60 focus:border-cfd-black focus:outline-none transition-colors"
-              />
-              <span className="text-[11px] text-cfd-muted">
-                Verifies Entry 1 without manually searching comments
-              </span>
-            </label>
+            {/* Proof of Comment: Link or Screenshot */}
+            <div className="border border-cfd-border bg-white p-5 sm:p-6">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black">
+                  Proof of Comment (Tagging 3 Friends) <span className="text-neutral-400">*</span>
+                </span>
+                <span className="bg-cfd-black text-white px-2 py-0.5 text-[10px] uppercase tracking-wider font-semibold">
+                  Link or Screenshot
+                </span>
+              </div>
+              <p className="text-xs text-cfd-muted font-serif italic mb-5">
+                Provide either a direct link to your comment OR upload a screenshot showing your comment with 3 tagged friends.
+              </p>
+
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* Method 1: Comment Link */}
+                <div className="border border-cfd-border bg-cfd-newsprint p-4 sm:p-5 flex flex-col justify-between">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-[11px] uppercase tracking-[0.18em] font-semibold text-cfd-black">
+                      Option A: Enter Comment Link
+                    </span>
+                    <input
+                      type="text"
+                      placeholder="https://instagram.com/p/... or handle & comment details"
+                      value={form.commentLink}
+                      onChange={(e) => update("commentLink", e.target.value)}
+                      className="rounded-xs border border-cfd-border bg-white px-3.5 py-2.5 text-sm text-cfd-black placeholder:text-cfd-muted/60 focus:border-cfd-black focus:outline-none transition-colors"
+                    />
+                    <span className="text-[11px] text-cfd-muted">
+                      Paste the link to your comment or specify your handle and post
+                    </span>
+                  </div>
+                </div>
+
+                {/* Method 2: Comment Screenshot */}
+                <div className="border border-cfd-border bg-cfd-newsprint p-4 sm:p-5 flex flex-col justify-between">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-[11px] uppercase tracking-[0.18em] font-semibold text-cfd-black">
+                      Option B: Upload Comment Screenshot
+                    </span>
+
+                    {form.commentScreenshotPreview ? (
+                      <div className="relative inline-flex flex-col items-center border border-cfd-border bg-white p-3 shadow-xs">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={form.commentScreenshotPreview}
+                          alt="Comment screenshot"
+                          className="h-32 w-auto max-w-full object-contain"
+                        />
+                        <div className="mt-2 flex items-center justify-between w-full text-xs text-cfd-muted">
+                          <span className="truncate max-w-[150px]">
+                            {form.commentScreenshotFile?.name}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={removeCommentScreenshot}
+                            className="text-red-700 hover:text-black font-semibold cursor-pointer underline text-[11px]"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center border-2 border-dashed border-cfd-border hover:border-cfd-black bg-white p-4 cursor-pointer transition-colors text-center">
+                        <span className="font-serif text-sm font-medium text-cfd-black">
+                          Upload Comment Screenshot
+                        </span>
+                        <span className="mt-1 text-[10px] uppercase tracking-wider text-cfd-muted">
+                          JPG, PNG, or WEBP up to 2.5MB
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleCommentScreenshotChange}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                    <span className="text-[11px] text-cfd-muted">
+                      Screenshot showing your comment tagging 3 friends
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status helper */}
+              <div className="mt-4 pt-3 border-t border-cfd-border/60 flex items-center justify-between text-[11px]">
+                <span
+                  className={
+                    form.commentLink.trim() || form.commentScreenshotFile
+                      ? "text-emerald-700 font-semibold"
+                      : "text-amber-800"
+                  }
+                >
+                  {form.commentLink.trim() && form.commentScreenshotFile
+                    ? "✓ Both link and screenshot provided"
+                    : form.commentLink.trim()
+                    ? "✓ Comment link provided"
+                    : form.commentScreenshotFile
+                    ? "✓ Comment screenshot uploaded"
+                    : "⚠️ Please enter a link or upload a screenshot (at least one is required)"}
+                </span>
+              </div>
+            </div>
 
             {/* Follow Confirmation Checkbox */}
             <label className="flex items-start gap-3 border border-cfd-border bg-cfd-newsprint p-4 sm:p-5 cursor-pointer hover:border-black transition-colors">
@@ -883,6 +1113,112 @@ export default function CompetitionForm() {
                 I confirm I follow Creative Forge Digital on at least 2 of the 3 platforms I&apos;ve indicated above. <span className="text-neutral-400 font-sans">*</span>
               </span>
             </label>
+
+            {/* Proof of Following: 2 Optional Photo Uploads */}
+            <div className="border border-cfd-border bg-cfd-newsprint p-5 sm:p-6">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-cfd-black flex items-center gap-2">
+                  <span>Proof of Social Following</span>
+                  <span className="bg-cfd-border text-cfd-black px-2 py-0.5 text-[10px] uppercase tracking-wider font-semibold">
+                    2 Optional Photos
+                  </span>
+                </span>
+                <span className="text-[11px] text-cfd-muted">Optional</span>
+              </div>
+
+              <p className="mt-2 text-xs leading-relaxed text-cfd-charcoal font-serif italic">
+                &ldquo;Add photo screenshots confirming you follow Creative Forge Digital on your 2 chosen platforms (Instagram, Facebook, or TikTok).&rdquo;
+              </p>
+              <p className="mt-1 text-[11px] text-cfd-muted">
+                Uploading follow screenshots is optional but helps us verify your entry immediately during the audited draw.
+              </p>
+
+              <div className="mt-5 grid gap-6 sm:grid-cols-2">
+                {/* Photo 1 Dropzone */}
+                <div className="flex flex-col gap-2">
+                  <span className="text-[11px] uppercase tracking-[0.18em] font-semibold text-cfd-black">
+                    Follow Proof Photo 1 (Optional)
+                  </span>
+                  {form.followProof1Preview ? (
+                    <div className="relative inline-flex flex-col items-center border border-cfd-border bg-white p-3 shadow-xs">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={form.followProof1Preview}
+                        alt="Follow proof 1"
+                        className="h-40 w-auto max-w-full object-contain"
+                      />
+                      <div className="mt-2 flex items-center justify-between w-full text-xs text-cfd-muted">
+                        <span className="truncate max-w-[150px]">{form.followProof1File?.name}</span>
+                        <button
+                          type="button"
+                          onClick={removeFollowProof1}
+                          className="text-red-700 hover:text-black font-semibold cursor-pointer underline text-[11px]"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center border-2 border-dashed border-cfd-border hover:border-cfd-black bg-white p-6 cursor-pointer transition-colors text-center">
+                      <span className="font-serif text-sm font-medium text-cfd-black">
+                        Upload Follow Proof 1
+                      </span>
+                      <span className="mt-1 text-[10px] uppercase tracking-wider text-cfd-muted">
+                        JPG, PNG, or WEBP up to 2.5MB
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFollowProof1Change}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+
+                {/* Photo 2 Dropzone */}
+                <div className="flex flex-col gap-2">
+                  <span className="text-[11px] uppercase tracking-[0.18em] font-semibold text-cfd-black">
+                    Follow Proof Photo 2 (Optional)
+                  </span>
+                  {form.followProof2Preview ? (
+                    <div className="relative inline-flex flex-col items-center border border-cfd-border bg-white p-3 shadow-xs">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={form.followProof2Preview}
+                        alt="Follow proof 2"
+                        className="h-40 w-auto max-w-full object-contain"
+                      />
+                      <div className="mt-2 flex items-center justify-between w-full text-xs text-cfd-muted">
+                        <span className="truncate max-w-[150px]">{form.followProof2File?.name}</span>
+                        <button
+                          type="button"
+                          onClick={removeFollowProof2}
+                          className="text-red-700 hover:text-black font-semibold cursor-pointer underline text-[11px]"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center border-2 border-dashed border-cfd-border hover:border-cfd-black bg-white p-6 cursor-pointer transition-colors text-center">
+                      <span className="font-serif text-sm font-medium text-cfd-black">
+                        Upload Follow Proof 2
+                      </span>
+                      <span className="mt-1 text-[10px] uppercase tracking-wider text-cfd-muted">
+                        JPG, PNG, or WEBP up to 2.5MB
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFollowProof2Change}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+              </div>
+            </div>
 
             {/* Bonus Entry Plate: Story Screenshot */}
             <div className="border border-cfd-border bg-cfd-newsprint p-5 sm:p-6">
@@ -930,7 +1266,7 @@ export default function CompetitionForm() {
                       Upload Story Screenshot
                     </span>
                     <span className="mt-1 text-[11px] uppercase tracking-wider text-cfd-muted">
-                      JPG, PNG, or WEBP up to 10MB
+                      JPG, PNG, or WEBP up to 2.5MB
                     </span>
                     <input
                       type="file"

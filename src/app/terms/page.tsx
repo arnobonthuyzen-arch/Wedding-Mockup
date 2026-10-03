@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import CfdNavbar from "@/components/competition/CfdNavbar";
 
 export const metadata: Metadata = {
@@ -261,9 +262,18 @@ export default function TermsPage() {
             >
               Back to Entry Form →
             </Link>
-            <span className="text-xs text-cfd-muted">
-              &copy; {new Date().getFullYear()} Creative Forge Digital
-            </span>
+            <div className="flex items-center gap-2.5 text-xs text-cfd-muted">
+              <div className="relative flex h-5 w-5 items-center justify-center overflow-hidden rounded-full border border-cfd-border bg-black">
+                <Image
+                  src="/images/cfd-logo.png"
+                  alt="CFD"
+                  width={20}
+                  height={20}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <span>&copy; {new Date().getFullYear()} Creative Forge Digital</span>
+            </div>
           </div>
         </div>
       </main>

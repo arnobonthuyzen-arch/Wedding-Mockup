@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 
 export default function CfdNavbar() {
@@ -11,8 +12,15 @@ export default function CfdNavbar() {
       <div className="flex items-center justify-between rounded-full border border-white/10 bg-[#121212]/90 px-4 py-2.5 sm:px-6 sm:py-3 shadow-lift backdrop-blur-md text-white font-sans">
         {/* Left: Brand Monogram + Name */}
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-white/20 bg-white/5 font-serif italic text-base text-white/90 group-hover:border-white transition-colors">
-            CF
+          <div className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center overflow-hidden rounded-full border border-white/20 bg-black transition-transform group-hover:border-white/50 group-hover:scale-105">
+            <Image
+              src="/images/cfd-logo.png"
+              alt="Creative Forge Digital"
+              width={36}
+              height={36}
+              className="h-full w-full object-cover"
+              priority
+            />
           </div>
           <span className="font-serif text-sm sm:text-base tracking-wide text-white font-normal group-hover:text-white/90 transition-colors">
             Creative Forge Digital

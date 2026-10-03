@@ -1,13 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import CfdNavbar from "@/components/competition/CfdNavbar";
 import CompetitionHeader from "@/components/competition/CompetitionHeader";
+import HowToEnter from "@/components/competition/HowToEnter";
+import PrizeSection from "@/components/competition/PrizeSection";
 import CompetitionForm from "@/components/competition/CompetitionForm";
 
 export const metadata: Metadata = {
   title: "Win a Bespoke Wedding Website | Creative Forge Digital",
   description:
     "Enter the Creative Forge Digital competition to stand a chance to win a custom luxury wedding website for your 2027 wedding. Valued at R4,500. Free to enter for South African residents aged 18+.",
+  icons: {
+    icon: "/images/cfd-logo.png",
+    apple: "/images/cfd-logo.png",
+  },
   openGraph: {
     title: "Win a Bespoke Wedding Website | Creative Forge Digital",
     description:
@@ -25,6 +32,8 @@ export default function Home() {
       {/* Main Container */}
       <main className="mx-auto max-w-5xl px-4 sm:px-6 pt-6 sm:pt-10 pb-20">
         <CompetitionHeader />
+        <HowToEnter />
+        <PrizeSection />
         <CompetitionForm />
       </main>
 
@@ -34,8 +43,14 @@ export default function Home() {
           {/* Top Row: Brand & Links */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-white/10 pb-10">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 font-serif italic text-lg text-white">
-                CF
+              <div className="relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center overflow-hidden rounded-full border border-white/20 bg-black">
+                <Image
+                  src="/images/cfd-logo.png"
+                  alt="Creative Forge Digital"
+                  width={44}
+                  height={44}
+                  className="h-full w-full object-cover"
+                />
               </div>
               <div>
                 <span className="font-serif text-lg text-white tracking-wide block">

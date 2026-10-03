@@ -75,8 +75,11 @@ export async function initDatabase(): Promise<boolean> {
       wedding_hashtag VARCHAR(100) NOT NULL,
       couple_email VARCHAR(150) NULL,
       couple_phone VARCHAR(50) NULL,
-      comment_link TEXT NOT NULL,
+      comment_link TEXT NULL,
+      comment_screenshot_path VARCHAR(255) NULL,
       confirm_follow BOOLEAN NOT NULL DEFAULT 1,
+      follow_proof_1_path VARCHAR(255) NULL,
+      follow_proof_2_path VARCHAR(255) NULL,
       story_screenshot_path VARCHAR(255) NULL,
       terms_accepted BOOLEAN NOT NULL DEFAULT 1,
       marketing_consent BOOLEAN NOT NULL DEFAULT 0,
@@ -88,6 +91,25 @@ export async function initDatabase(): Promise<boolean> {
   `;
 
   await db.query(createTableQuery);
+
+  // Auto-migrate new columns if table already exists
+  try {
+    await db.query(
+      `ALTER TABLE competition_entries MODIFY COLUMN comment_link TEXT NULL`
+    );
+    await db.query(
+      `ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS comment_screenshot_path VARCHAR(255) NULL`
+    );
+    await db.query(
+      `ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS follow_proof_1_path VARCHAR(255) NULL`
+    );
+    await db.query(
+      `ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS follow_proof_2_path VARCHAR(255) NULL`
+    );
+  } catch {
+    // Ignore migration errors if columns already exist
+  }
+
   isInitialized = true;
   return true;
 }
@@ -111,8 +133,11 @@ export interface CompetitionEntryPayload {
   weddingHashtag: string;
   coupleEmail: string | null;
   couplePhone: string | null;
-  commentLink: string;
+  commentLink: string | null;
+  commentScreenshotPath: string | null;
   confirmFollow: boolean;
+  followProof1Path: string | null;
+  followProof2Path: string | null;
   storyScreenshotPath: string | null;
   termsAccepted: boolean;
   marketingConsent: boolean;
@@ -152,13 +177,16 @@ export async function insertCompetitionEntry(data: CompetitionEntryPayload) {
         couple_email,
         couple_phone,
         comment_link,
+        comment_screenshot_path,
         confirm_follow,
+        follow_proof_1_path,
+        follow_proof_2_path,
         story_screenshot_path,
         terms_accepted,
         marketing_consent,
         client_ip,
         user_agent
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -180,8 +208,11 @@ export async function insertCompetitionEntry(data: CompetitionEntryPayload) {
       data.weddingHashtag,
       data.coupleEmail || null,
       data.couplePhone || null,
-      data.commentLink,
+      data.commentLink || null,
+      data.commentScreenshotPath || null,
       data.confirmFollow ? 1 : 0,
+      data.followProof1Path || null,
+      data.followProof2Path || null,
       data.storyScreenshotPath || null,
       data.termsAccepted ? 1 : 0,
       data.marketingConsent ? 1 : 0,

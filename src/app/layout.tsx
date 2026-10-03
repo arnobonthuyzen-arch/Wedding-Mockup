@@ -21,6 +21,10 @@ export const metadata: Metadata = {
   title: "Win a Bespoke Wedding Website | Creative Forge Digital",
   description:
     "Enter the Creative Forge Digital competition to stand a chance to win a custom luxury wedding website for your 2027 wedding. Valued at R4,500.",
+  icons: {
+    icon: "/images/cfd-logo.png",
+    apple: "/images/cfd-logo.png",
+  },
 };
 
 export default function RootLayout({
