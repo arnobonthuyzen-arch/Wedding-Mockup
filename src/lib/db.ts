@@ -1,4 +1,6 @@
 // Database helper with safe dynamic resolution for MariaDB / MySQL
+import fs from "fs/promises";
+import path from "path";
 
 type PoolType = any;
 let pool: PoolType = null;
@@ -105,6 +107,12 @@ export async function initDatabase(): Promise<boolean> {
     );
     await db.query(
       `ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS follow_proof_2_path VARCHAR(255) NULL`
+    );
+    await db.query(
+      `ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS status VARCHAR(32) DEFAULT 'pending'`
+    );
+    await db.query(
+      `ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS admin_notes TEXT NULL`
     );
   } catch {
     // Ignore migration errors if columns already exist
@@ -226,4 +234,210 @@ export async function insertCompetitionEntry(data: CompetitionEntryPayload) {
     console.error("Database insert error:", err);
     return { success: false, error: err };
   }
+}
+
+/**
+ * Retrieve all competition entries from MySQL, merged/backed up with data/competition-entries.json
+ */
+export async function getAllCompetitionEntries(): Promise<any[]> {
+  const entriesMap = new Map<string, any>();
+
+  // 1. Try reading from backup JSON file first
+  try {
+    const dataDir = path.join(process.cwd(), "data");
+    const dataFilePath = path.join(dataDir, "competition-entries.json");
+    const fileContent = await fs.readFile(dataFilePath, "utf8");
+    const jsonEntries = JSON.parse(fileContent);
+    if (Array.isArray(jsonEntries)) {
+      for (const entry of jsonEntries) {
+        const id = entry.entryId || entry.entry_id;
+        if (id) {
+          entriesMap.set(id, {
+            id: entry.id || id,
+            entryId: id,
+            entriesCount: Number(entry.entriesCount || entry.entries_count || 1),
+            fullName: entry.entrant?.fullName || entry.fullName || entry.full_name || "",
+            relationship: entry.entrant?.relationship || entry.relationship || "",
+            email: entry.entrant?.email || entry.email || "",
+            phone: entry.entrant?.phone || entry.phone || "",
+            residentAge18: Boolean(entry.entrant?.residentAge18 ?? entry.resident_age_18 ?? true),
+            instagramHandle: entry.socialProfiles?.instagram ?? entry.instagramHandle ?? entry.instagram_handle ?? null,
+            noInstagram: Boolean(entry.noInstagram ?? entry.no_instagram),
+            facebookHandle: entry.socialProfiles?.facebook ?? entry.facebookHandle ?? entry.facebook_handle ?? null,
+            noFacebook: Boolean(entry.noFacebook ?? entry.no_facebook),
+            tiktokHandle: entry.socialProfiles?.tiktok ?? entry.tiktokHandle ?? entry.tiktok_handle ?? null,
+            noTikTok: Boolean(entry.noTikTok ?? entry.no_tiktok),
+            coupleNames: entry.wedding?.coupleNames || entry.coupleNames || entry.couple_names || "",
+            weddingDate: entry.wedding?.weddingDate || entry.weddingDate || entry.wedding_date || "",
+            weddingHashtag: entry.wedding?.weddingHashtag || entry.weddingHashtag || entry.wedding_hashtag || "",
+            coupleEmail: entry.wedding?.coupleEmail ?? entry.coupleEmail ?? entry.couple_email ?? null,
+            couplePhone: entry.wedding?.couplePhone ?? entry.couplePhone ?? entry.couple_phone ?? null,
+            commentLink: entry.verification?.commentLink ?? entry.commentLink ?? entry.comment_link ?? null,
+            commentScreenshotPath: entry.verification?.commentScreenshotPath ?? entry.commentScreenshotPath ?? entry.comment_screenshot_path ?? null,
+            confirmFollow: Boolean(entry.verification?.confirmFollow ?? entry.confirmFollow ?? entry.confirm_follow ?? true),
+            followProof1Path: entry.verification?.followProof1Path ?? entry.followProof1Path ?? entry.follow_proof_1_path ?? null,
+            followProof2Path: entry.verification?.followProof2Path ?? entry.followProof2Path ?? entry.follow_proof_2_path ?? null,
+            storyScreenshotPath: entry.verification?.storyScreenshotPath ?? entry.storyScreenshotPath ?? entry.story_screenshot_path ?? null,
+            termsAccepted: Boolean(entry.legal?.termsAccepted ?? entry.termsAccepted ?? entry.terms_accepted ?? true),
+            marketingConsent: Boolean(entry.legal?.marketingConsent ?? entry.marketingConsent ?? entry.marketing_consent ?? false),
+            status: entry.status || "pending",
+            adminNotes: entry.adminNotes || entry.admin_notes || "",
+            createdAt: entry.timestamp || entry.created_at || new Date().toISOString(),
+          });
+        }
+      }
+    }
+  } catch {
+    // JSON file doesn't exist yet or is empty
+  }
+
+  // 2. Try querying MySQL table
+  try {
+    const initialized = await initDatabase();
+    if (initialized) {
+      const db = await getDbPool();
+      if (db) {
+        const [rows] = await db.query(
+          "SELECT * FROM competition_entries ORDER BY id DESC"
+        );
+        if (Array.isArray(rows)) {
+          for (const row of rows) {
+            const id = row.entry_id;
+            if (id) {
+              const existing = entriesMap.get(id);
+              entriesMap.set(id, {
+                id: row.id,
+                entryId: id,
+                entriesCount: Number(row.entries_count || 1),
+                fullName: row.full_name || "",
+                relationship: row.relationship || "",
+                email: row.email || "",
+                phone: row.phone || "",
+                residentAge18: Boolean(row.resident_age_18),
+                instagramHandle: row.instagram_handle || null,
+                noInstagram: Boolean(row.no_instagram),
+                facebookHandle: row.facebook_handle || null,
+                noFacebook: Boolean(row.no_facebook),
+                tiktokHandle: row.tiktok_handle || null,
+                noTikTok: Boolean(row.no_tiktok),
+                coupleNames: row.couple_names || "",
+                weddingDate: row.wedding_date ? String(row.wedding_date).slice(0, 10) : "",
+                weddingHashtag: row.wedding_hashtag || "",
+                coupleEmail: row.couple_email || null,
+                couplePhone: row.couple_phone || null,
+                commentLink: row.comment_link || null,
+                commentScreenshotPath: row.comment_screenshot_path || null,
+                confirmFollow: Boolean(row.confirm_follow),
+                followProof1Path: row.follow_proof_1_path || null,
+                followProof2Path: row.follow_proof_2_path || null,
+                storyScreenshotPath: row.story_screenshot_path || null,
+                termsAccepted: Boolean(row.terms_accepted),
+                marketingConsent: Boolean(row.marketing_consent),
+                status: row.status || existing?.status || "pending",
+                adminNotes: row.admin_notes || existing?.adminNotes || "",
+                createdAt: row.created_at ? new Date(row.created_at).toISOString() : existing?.createdAt || new Date().toISOString(),
+              });
+            }
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Notice: MySQL entries query failed, using JSON backup entries:", err);
+  }
+
+  return Array.from(entriesMap.values()).sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+}
+
+/**
+ * Update an entry's status and admin notes
+ */
+export async function updateCompetitionEntryStatus(
+  entryId: string,
+  status: "verified" | "pending" | "disqualified",
+  adminNotes?: string
+): Promise<boolean> {
+  let updatedInDb = false;
+
+  // 1. Update in MySQL
+  try {
+    const initialized = await initDatabase();
+    if (initialized) {
+      const db = await getDbPool();
+      if (db) {
+        await db.execute(
+          "UPDATE competition_entries SET status = ?, admin_notes = ? WHERE entry_id = ?",
+          [status, adminNotes || null, entryId]
+        );
+        updatedInDb = true;
+      }
+    }
+  } catch (err) {
+    console.warn("DB update status error:", err);
+  }
+
+  // 2. Update in backup JSON
+  try {
+    const dataDir = path.join(process.cwd(), "data");
+    const dataFilePath = path.join(dataDir, "competition-entries.json");
+    const fileContent = await fs.readFile(dataFilePath, "utf8");
+    const entries = JSON.parse(fileContent);
+    if (Array.isArray(entries)) {
+      let modified = false;
+      for (const entry of entries) {
+        if (entry.entryId === entryId || entry.entry_id === entryId) {
+          entry.status = status;
+          if (adminNotes !== undefined) entry.adminNotes = adminNotes;
+          modified = true;
+        }
+      }
+      if (modified) {
+        await fs.writeFile(dataFilePath, JSON.stringify(entries, null, 2), "utf8");
+      }
+    }
+  } catch (err) {
+    console.warn("JSON file update status error:", err);
+  }
+
+  return updatedInDb || true;
+}
+
+/**
+ * Delete a competition entry
+ */
+export async function deleteCompetitionEntry(entryId: string): Promise<boolean> {
+  // 1. Delete from MySQL
+  try {
+    const initialized = await initDatabase();
+    if (initialized) {
+      const db = await getDbPool();
+      if (db) {
+        await db.execute("DELETE FROM competition_entries WHERE entry_id = ?", [
+          entryId,
+        ]);
+      }
+    }
+  } catch (err) {
+    console.warn("DB delete error:", err);
+  }
+
+  // 2. Delete from backup JSON
+  try {
+    const dataDir = path.join(process.cwd(), "data");
+    const dataFilePath = path.join(dataDir, "competition-entries.json");
+    const fileContent = await fs.readFile(dataFilePath, "utf8");
+    const entries = JSON.parse(fileContent);
+    if (Array.isArray(entries)) {
+      const filtered = entries.filter(
+        (e) => e.entryId !== entryId && e.entry_id !== entryId
+      );
+      await fs.writeFile(dataFilePath, JSON.stringify(filtered, null, 2), "utf8");
+    }
+  } catch (err) {
+    console.warn("JSON delete error:", err);
+  }
+
+  return true;
 }

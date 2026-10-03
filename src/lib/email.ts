@@ -78,40 +78,60 @@ export async function sendCompetitionNotificationEmail(
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${subject}</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #FAF7F2; color: #1C1A17; margin: 0; padding: 24px; line-height: 1.5; }
-    .container { max-width: 650px; margin: 0 auto; background: #ffffff; border: 1px solid #E5DFD5; }
-    .header { background: #101010; color: #ffffff; padding: 32px 28px; text-align: left; }
-    .brand-kicker { font-size: 10px; text-transform: uppercase; letter-spacing: 0.25em; color: #9E9E9E; margin-bottom: 8px; }
-    .title { font-family: "Georgia", serif; font-size: 26px; font-weight: normal; margin: 0 0 8px 0; color: #ffffff; }
-    .badge { display: inline-block; background: #FAF7F2; color: #101010; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; padding: 4px 12px; margin-top: 8px; }
-    .body { padding: 32px 28px; }
-    .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.22em; color: #78736B; border-bottom: 1px solid #E5DFD5; padding-bottom: 6px; margin: 24px 0 14px 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #F6F3EE; color: #1C1A17; margin: 0; padding: 24px 12px; line-height: 1.55; }
+    .container { max-width: 660px; margin: 0 auto; background: #ffffff; border: 1px solid #DFD9CE; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    .gold-bar { height: 4px; background: linear-gradient(90deg, #D4AF37 0%, #F3E5AB 50%, #B8860B 100%); }
+    .header { background: #121212; color: #ffffff; padding: 34px 30px; text-align: left; }
+    .brand-kicker { font-size: 10px; text-transform: uppercase; letter-spacing: 0.28em; color: #BDB7AB; margin-bottom: 10px; font-weight: 600; }
+    .title { font-family: "Georgia", "Playfair Display", serif; font-size: 28px; font-weight: normal; margin: 0 0 10px 0; color: #ffffff; letter-spacing: -0.01em; }
+    .badge { display: inline-block; background: #262626; color: #FFFFFF; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; padding: 5px 12px; margin-right: 6px; border: 1px solid rgba(255,255,255,0.15); border-radius: 2px; }
+    .badge-gold { background: #B8860B; color: #FFFFFF; border-color: #D4AF37; }
+    .admin-action-bar { background: #F8F5F0; border-bottom: 1px solid #E6E0D5; padding: 14px 30px; text-align: right; }
+    .admin-btn { display: inline-block; background: #121212; color: #ffffff !important; text-decoration: none; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.18em; padding: 10px 18px; border-radius: 2px; }
+    .body { padding: 32px 30px; }
+    .couple-highlight { background: #FAF7F2; border: 1px solid #E2DCD1; border-left: 4px solid #121212; padding: 18px 22px; margin-bottom: 26px; }
+    .couple-title { font-family: "Georgia", serif; font-size: 22px; color: #121212; margin: 0 0 4px 0; font-weight: normal; }
+    .couple-sub { font-size: 12px; color: #6E685F; text-transform: uppercase; letter-spacing: 0.16em; font-weight: 600; margin: 0; }
+    .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.24em; color: #8A847A; border-bottom: 1px solid #ECE7DE; padding-bottom: 6px; margin: 26px 0 12px 0; font-weight: 700; }
     .section-title:first-child { margin-top: 0; }
     .table-details { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .table-details td { padding: 8px 0; vertical-align: top; border-bottom: 1px solid #F4EFE6; }
-    .table-details td.label { width: 38%; color: #78736B; font-weight: 500; }
-    .table-details td.value { width: 62%; color: #101010; font-weight: 600; }
-    .callout { background: #FAF7F2; border: 1px solid #E5DFD5; padding: 14px 18px; margin: 18px 0; font-size: 12px; }
-    .footer { background: #F4EFE6; padding: 20px 28px; font-size: 11px; color: #78736B; text-transform: uppercase; letter-spacing: 0.15em; text-align: center; }
+    .table-details td { padding: 9px 0; vertical-align: top; border-bottom: 1px solid #F5F1EB; }
+    .table-details td.label { width: 36%; color: #756F66; font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .table-details td.value { width: 64%; color: #121212; font-weight: 600; }
+    .table-details td.value a { color: #121212; text-decoration: underline; }
+    .callout { background: #F8F5F0; border: 1px solid #E2DCD1; padding: 16px 20px; margin: 20px 0; font-size: 12px; line-height: 1.6; }
+    .footer { background: #EFEAE1; padding: 24px 30px; font-size: 11px; color: #6E685F; text-transform: uppercase; letter-spacing: 0.18em; text-align: center; border-top: 1px solid #E2DCD1; }
   </style>
 </head>
 <body>
   <div class="container">
+    <div class="gold-bar"></div>
     <div class="header">
-      <div style="margin-bottom: 12px;">
-        <img src="https://wedding.creativeforgedigital.co.za/images/cfd-logo.png" alt="Creative Forge Digital" width="48" height="48" style="border-radius: 50%; border: 1px solid #D5CEBF; display: inline-block; background-color: #000000;" />
+      <div style="margin-bottom: 14px;">
+        <img src="https://wedding.creativeforgedigital.co.za/images/cfd-logo.png" alt="Creative Forge Digital" width="52" height="52" style="border-radius: 50%; border: 1px solid #E0D9CC; display: inline-block; background-color: #000000;" />
       </div>
-      <div class="brand-kicker">Creative Forge Digital • Official Competition Entry</div>
+      <div class="brand-kicker">Creative Forge Digital • Official Competition Submission</div>
       <h1 class="title">Win a Bespoke Wedding Website</h1>
       <div>
-        <span class="badge">Reference: ${data.entryId}</span>
-        <span class="badge" style="background: ${data.entriesCount === 2 ? "#D97706; color: #ffffff;" : "#E5DFD5;"}">
-          ${data.entriesCount} ${data.entriesCount === 2 ? "Entries (Bonus Included)" : "Entry"}
+        <span class="badge">Ref: ${data.entryId}</span>
+        <span class="badge ${data.entriesCount === 2 ? "badge-gold" : ""}">
+          ${data.entriesCount === 2 ? "★ 2 Entries (Bonus Story Included)" : "1 Standard Entry"}
         </span>
       </div>
     </div>
 
+    <div class="admin-action-bar">
+      <a href="https://wedding.creativeforgedigital.co.za/adminpanellogin" class="admin-btn" target="_blank">
+        Open Admin Control Room ↗
+      </a>
+    </div>
+
     <div class="body">
+      <!-- Couple Highlight Hero -->
+      <div class="couple-highlight">
+        <h2 class="couple-title">${data.coupleNames}</h2>
+        <p class="couple-sub">Wedding Date: ${data.weddingDate} (2027 Confirmed) • ${data.weddingHashtag}</p>
+      </div>
       <!-- 01. Entrant -->
       <div class="section-title">01. Entrant Details</div>
       <table class="table-details">
