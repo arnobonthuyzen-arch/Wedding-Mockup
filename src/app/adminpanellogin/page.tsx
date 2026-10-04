@@ -77,6 +77,28 @@ export default function AdminPanelPage() {
   const [drawResult, setDrawResult] = useState<any | null>(null);
   const [drawError, setDrawError] = useState("");
 
+  // UI State: Test Email
+  const [isTestingEmail, setIsTestingEmail] = useState(false);
+  const [emailTestStatus, setEmailTestStatus] = useState<string | null>(null);
+
+  const handleSendTestEmail = async () => {
+    setIsTestingEmail(true);
+    setEmailTestStatus(null);
+    try {
+      const res = await fetch("/api/admin/test-email", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setEmailTestStatus(`✓ Test email delivered to admin@ & danielle@ (ID: ${data.resendId})`);
+      } else {
+        setEmailTestStatus(`✕ Error: ${data.error || "Failed to send email"}`);
+      }
+    } catch {
+      setEmailTestStatus("✕ Network error connecting to mail server");
+    } finally {
+      setIsTestingEmail(false);
+    }
+  };
+
   // 1. Check existing session on load
   useEffect(() => {
     async function checkAuth() {
@@ -493,6 +515,15 @@ export default function AdminPanelPage() {
           {/* Right: Actions */}
           <div className="flex items-center gap-2.5 sm:gap-3">
             <button
+              onClick={handleSendTestEmail}
+              disabled={isTestingEmail}
+              className="inline-flex items-center gap-1.5 rounded-full border border-blue-300 bg-blue-50 px-3.5 py-1.5 text-[11px] uppercase tracking-[0.15em] font-medium text-blue-900 hover:bg-blue-600 hover:text-white transition-all cursor-pointer disabled:opacity-50"
+            >
+              <span>✉</span>
+              <span>{isTestingEmail ? "Sending..." : "Test Email"}</span>
+            </button>
+
+            <button
               onClick={() => setIsDrawModalOpen(true)}
               className="inline-flex items-center gap-1.5 rounded-full border border-[#D4AF37] bg-[#FAF5EB] px-3.5 py-1.5 text-[11px] uppercase tracking-[0.15em] font-semibold text-[#8C6D1F] hover:bg-[#D4AF37] hover:text-black transition-all cursor-pointer shadow-xs"
             >
@@ -521,6 +552,21 @@ export default function AdminPanelPage() {
             </button>
           </div>
         </div>
+
+        {/* Test Email Status Banner */}
+        {emailTestStatus && (
+          <div className="border-t border-[#E3DDD1] bg-white px-4 sm:px-8 py-2.5 text-xs text-center flex items-center justify-between">
+            <span className={emailTestStatus.startsWith("✓") ? "text-emerald-700 font-medium" : "text-red-700 font-medium"}>
+              {emailTestStatus}
+            </span>
+            <button
+              onClick={() => setEmailTestStatus(null)}
+              className="text-neutral-400 hover:text-black text-xs font-bold cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+        )}
       </header>
 
       <main className="mx-auto max-w-7xl px-4 sm:px-8 py-8">
